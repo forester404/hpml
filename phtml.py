@@ -26,7 +26,7 @@ def closingTagIndex(buffer, startIndex):
 				return nextTagStart
 			else:
 					del tagStack[-1]
-		#openning tag
+		#opening tag
 		else:
 			tagStack.append(tag)
 		
@@ -54,6 +54,17 @@ def readTag(buffer, startingIndex):
 		i = i + 1
 	print "***tag = " + tag
 	return tag
+
+
+#given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves	
+def getTagContent(buffer, index):
+	rangeHigh = closingTagIndex(buffer, index)
+	#find the lower range start, skip until end of opening 
+	rangeLow = index
+	while buffer[rangeLow] != '>':
+		rangeLow = rangeLow + 1
+	
+	return buffer[rangeLow + 1:rangeHigh - 2]
 	
 #print buffer
 #print buffer.find("td")
@@ -80,8 +91,14 @@ def testTagIsClosing():
 	
 	
 def testFindEndOfRoot():
-		buffer = readBuffer()
-		closingTagPos = closingTagIndex(buffer, 333)
-		print closingTagPos
+	buffer = readBuffer()
+	closingTagPos = closingTagIndex(buffer, 333)
+	print closingTagPos
 		
-testFindEndOfRoot()	
+def testGetContent():
+	buffer = readBuffer()
+	content = getTagContent(buffer, 0)
+	print "**content :*****" 
+	print content 
+		
+testGetContent()	
