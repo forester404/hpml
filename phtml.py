@@ -66,30 +66,35 @@ def closingTagIndex(buffer, startIndex):
 	while nextTagStart < len(buffer) and nextTagStart != -1:
 		nextTagStart = buffer.find(tag, nextTagStart + 1)
 		#closing tag - remove the last openneing tag, if the stack is then empty we found we were looking for 
-		if isTagClosing(buffer, nextTagStart):
+		if nextTagStart == -1:
+			return -1
+		ttype = tagType(buffer, nextTagStart) 
+		if ttype == TAG_CLOSING:
 			if len(tagStack) == 1:
 				#found it
 				return nextTagStart
 			else:
 					del tagStack[-1]
-		#opening tag
+		#else, if opening tag
 		else:
-			tagStack.append(tag)
+			if ttype == TAG_OPENNING: 
+				tagStack.append(tag)
 		
 	return -1
 	#raise ValueError("buffer is not valid html") 
 	
 #given a location of starting of a tab(1st char), returns true iff the tag is closing one 
 #the location is assumed to be in a tag, either openning or closing one 
-def isTagClosing(buffer, index):
+def tagType(buffer, index):
 	#print "entering isTagClosing, index = " + str(index)
 	if index < 1:
-		return False
+		raise ValueError("tagType, index must have value > 0")
 	if buffer[index - 1] == "/":
-		return True
+		return TAG_CLOSING
 	if buffer[index - 1] == "<":
-		return False
-	raise ValueError("input is not first char of openning or closing tag for {}".format(buffer[index - 1:index])) 
+		return TAG_OPENNING
+	return TAG_NONE
+	#raise ValueError("input is not first char of openning or closing tag for {}".format(buffer[index - 1:index])) 
 
 
 
