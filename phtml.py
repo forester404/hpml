@@ -1,13 +1,24 @@
 
 
 filePath = "sample2.html"
+
+
+TAG_CLOSING = 1
+TAG_OPENNING = 2
+TAG_NONE = 3	
+
+
 tab = "     "
+
+
 def topLevel():
 	buffer = readBuffer()
-	content = getTagContent(buffer, 0)
+	content, endPos = getTagContent(buffer, 0)
 	processContent(content, 0)
 
 def processContent(content, indentInTabs):
+	if not content:
+		return
 	#print "entering processContent(), content = "
 	#print content
 	i = 0
@@ -20,11 +31,16 @@ def processContent(content, indentInTabs):
 		indent = ""
 		for k in range (0,indentInTabs):
 			indent += tab
-		print indent + tag
-		tagContent = getTagContent(content, nextTagPos)
+		print indent + tag + ":"
+		tagContent, endTagPos = getTagContent(content, nextTagPos)
 		processContent(tagContent, indentInTabs + 1)
-		i = i + len("<") + len(tag) + len(">") + len(tagContent) + len("</") + len(tag) + len(">")
-		#print "scanned " + str(i) + ":" + str(len(content)) 
+		
+		i = endTagPos 
+		#if there is a closing tag
+		if tagContent:
+			i = i + len(tag) + len(">")
+		else:
+			i = i + len("/>") + len(tag) + len(">")
 def readBuffer():
 	#buffer = "Read buffer:\n"
 	buffer = ""
@@ -36,11 +52,11 @@ def nextStargTag(buffer, index):
 		if buffer[index] == '<':
 			return index
 		index = index + 1
-	print "nextStargTag(), reached end of content"
+	#print "nextStargTag(), reached end of content"
 	return -1
 	
 	
-#start index is the index of the opening "<" in openening tag
+#returnn the index to beginning of closing tag, given start index, the index of the opening "<" in openening tag
 def closingTagIndex(buffer, startIndex):
 	nextTagStart = startIndex
 	tagStack = []
@@ -60,7 +76,8 @@ def closingTagIndex(buffer, startIndex):
 		else:
 			tagStack.append(tag)
 		
-	raise ValueError("buffer is not valid html") 
+	return -1
+	#raise ValueError("buffer is not valid html") 
 	
 #given a location of starting of a tab(1st char), returns true iff the tag is closing one 
 #the location is assumed to be in a tag, either openning or closing one 
@@ -72,8 +89,9 @@ def isTagClosing(buffer, index):
 		return True
 	if buffer[index - 1] == "<":
 		return False
-	raise ValueError("input is not first char of openning or closing tag") 
-	
+	raise ValueError("input is not first char of openning or closing tag for {}".format(buffer[index - 1:index])) 
+
+
 
 #start index is the index of the opening "<"
 def readTag(buffer, startingIndex):
@@ -86,15 +104,19 @@ def readTag(buffer, startingIndex):
 	return tag
 
 
-#given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves	
+#given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves
+#2nd return value is the position of the end of content (last char)
 def getTagContent(buffer, index):
 	rangeHigh = closingTagIndex(buffer, index)
+	#no closing tag, single tag, no content between tags
+	if rangeHigh == -1:
+		return ("", index)
 	#find the lower range start, skip until end of opening 
 	rangeLow = index
 	while buffer[rangeLow] != '>':
 		rangeLow = rangeLow + 1
 	
-	return buffer[rangeLow + 1:rangeHigh - 2]
+	return (buffer[rangeLow + 1:rangeHigh - 2], rangeHigh - 2)
 	
 #print buffer
 #print buffer.find("td")
