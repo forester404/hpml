@@ -108,6 +108,27 @@ def readTag(buffer, startingIndex):
 	#print "***tag = " + tag
 	return tag
 
+#start index is the index of the opening "<"
+def readTagHeader (buffer, startingIndex):
+	atrbs  = {}
+	i = startingIndex + 1 
+	fieldsStr = ""
+	while buffer[i] != ">":
+		fieldsStr += buffer[i]
+		i = i + 1 
+	fieldsStrss = fieldsStr.split(" ")
+	#drop the tag itself
+	fieldsStrss.pop(0)
+	for field in fieldsStrss:
+		keyVal = field.split("=")
+		key = keyVal[0]
+		#value is optional in html
+		if len(keyVal) > 1 :
+			val = keyVal[1]
+		else:
+			val = None 
+		atrbs[key] = val
+	return atrbs
 
 #given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves
 #2nd return value is the position of the end of content (last char)
@@ -157,8 +178,13 @@ def testGetContent():
 	content = getTagContent(buffer, 0)
 	print "**content :*****" 
 	print content 
-		
-#testGetContent()	
+	
 
+def testReadHeader ():	
+	print readTagHeader ('<a href="hello" key2=val2 disabled>', 0)
+	
+	
+#testGetContent()	
+#testReadHeader()
 topLevel()
 
