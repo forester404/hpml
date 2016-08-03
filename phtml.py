@@ -9,8 +9,8 @@ TAG_NONE = 3
 
 
 tab = "     "
-
-
+#tab = "\t"
+#tab = "tab "
 def topLevel():
 	buffer = readBuffer()
 	content, endPos = getTagContent(buffer, 0)
@@ -27,11 +27,18 @@ def processContent(content, indentInTabs):
 		#if all inner complex elments processed (also true if content was just primitives)
 		if nextTagPos == -1:
 			return
+		#print tag
 		tag = readTag(content, nextTagPos)
 		indent = ""
 		for k in range (0,indentInTabs):
 			indent += tab
 		print indent + tag + ":"
+		
+		#print tag args
+		args = readTagHeader (content, nextTagPos)
+		printArgsMap(indentInTabs + 1, args)
+		
+		#process tag nested content
 		tagContent, endTagPos = getTagContent(content, nextTagPos)
 		processContent(tagContent, indentInTabs + 1)
 		
@@ -74,7 +81,7 @@ def closingTagIndex(buffer, startIndex):
 				#found it
 				return nextTagStart
 			else:
-					del tagStack[-1]
+				del tagStack[-1]
 		#else, if opening tag
 		else:
 			if ttype == TAG_OPENNING: 
@@ -149,6 +156,17 @@ def getTagContent(buffer, index):
 
 
 #assuming the root tag opens at index 0 
+
+def printArgsMap(indentDepth, args):
+	indBlck = ""
+	#indBlck = str(indentDepth)
+	for i in range(0, indentDepth):
+			indBlck += tab
+	#for attr, value in args.__dict__.iteritems():
+	for attr, value in args.iteritems():
+		#print indBlck + "{}={}".format(attr, value)
+		print indBlck + attr + "=" + value
+	
 def testReadTag():
 	buffer = readBuffer()
 	print(readTag(buffer, 0))
@@ -182,9 +200,16 @@ def testGetContent():
 
 def testReadHeader ():	
 	print readTagHeader ('<a href="hello" key2=val2 disabled>', 0)
+
 	
+def testPrintArgs():
+	args={}
+	args["img"] = "http blah blavh blag"
+	args["keyn"] = "valn"
+	printArgsMap(2, args)
 	
 #testGetContent()	
 #testReadHeader()
 topLevel()
+#testPrintArgs()
 
