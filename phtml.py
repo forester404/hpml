@@ -15,12 +15,16 @@ tab = "     "
 
 CLOSING_TAG_NONE = 1
 CLOSING_TAG_NORMAL = 2
-
+#dbg_file = open("dbg.txt", "w")
 
 def topLevel():
+	#dbg_file = open("dbg.txt", "w")
+
 	buffer = readBuffer()
 	content, endPos, tagCode = getTagContent(buffer, 0)
 	processContent(content, 0)
+	
+	#dbg_file.close()
 
 def processContent(content, indentInTabs):
 	if not content:
@@ -33,7 +37,8 @@ def processContent(content, indentInTabs):
 		nextTagPos = nextStargTag(content, i, strContent)
 		
 		#print simple content in spaces between tags 
-		#printSimpleContent (indentInTabs, strContent)
+		printSimpleContent (indentInTabs, strContent)
+		
 		
 		#if all inner complex elments processed (also true if content was just primitives)
 		if nextTagPos == -1:
@@ -51,8 +56,11 @@ def processContent(content, indentInTabs):
 		
 		#process tag nested content
 		tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
-		processContent(tagContent, indentInTabs + 1)
+		if tagCode == CLOSING_TAG_NORMAL:
+			processContent(tagContent, indentInTabs + 1)
 		
+		#else:
+			#print "no tag content"
 		i = endTagPos 
 		
 		
@@ -62,6 +70,7 @@ def processContent(content, indentInTabs):
 		
 		if tagCode == CLOSING_TAG_NONE:
 			i = i + len(tag) + len(">")
+			print "**no closing tag"
 		else:
 			i = i + len("/>") + len(tag) + len(">")
 def readBuffer():
@@ -72,21 +81,32 @@ def readBuffer():
 
 def printSimpleContent (indentDepth, simpleConent):
 	ind = ""
+	line = simpleConent["txt"]
+	line = line.strip('\n')
+	line = line.strip('\t')
+	line = line.strip('\r\n')
+	line = line.strip('\r')
+	#\r\n
 	for i in range (0, indentDepth):
 		ind += tab
-	print ind + simpleConent["txt"]
-	
+	if line:	
+		print ind + line
+		#print "{{{" + ind + line + "}}}"
+	#dbg_file.write(ind + line)
 	
 def nextStargTag(buffer, index, strContent):
-	strContent["txt"] = ""
+	contBuf = ""
 	while index < len(buffer):
 		if buffer[index] == '<':
 			#print "****simple content = " + strContent["txt"] + "***"
+			strContent["txt"] = contBuf
 			return index
-		strContent["txt"] += buffer[index]
+		contBuf += buffer[index]
 		index = index + 1
 		
 	#print "nextStargTag(), reached end of content"
+	#strContent["txt"] = ""
+	strContent["txt"] = contBuf
 	return -1
 	
 	
