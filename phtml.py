@@ -11,9 +11,15 @@ TAG_NONE = 3
 tab = "     "
 #tab = "\t"
 #tab = "tab "
+
+
+CLOSING_TAG_NONE = 1
+CLOSING_TAG_NORMAL = 2
+
+
 def topLevel():
 	buffer = readBuffer()
-	content, endPos = getTagContent(buffer, 0)
+	content, endPos, tagCode = getTagContent(buffer, 0)
 	processContent(content, 0)
 
 def processContent(content, indentInTabs):
@@ -23,7 +29,12 @@ def processContent(content, indentInTabs):
 	#print content
 	i = 0
 	while i < len(content):
-		nextTagPos = nextStargTag(content, i)
+		strContent = {}
+		nextTagPos = nextStargTag(content, i, strContent)
+		
+		#print simple content in spaces between tags 
+		#printSimpleContent (indentInTabs, strContent)
+		
 		#if all inner complex elments processed (also true if content was just primitives)
 		if nextTagPos == -1:
 			return
@@ -39,12 +50,17 @@ def processContent(content, indentInTabs):
 		printArgsMap(indentInTabs + 1, args)
 		
 		#process tag nested content
-		tagContent, endTagPos = getTagContent(content, nextTagPos)
+		tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
 		processContent(tagContent, indentInTabs + 1)
 		
 		i = endTagPos 
-		#if there is a closing tag
-		if tagContent:
+		
+		
+		
+		
+		#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
+		
+		if tagCode == CLOSING_TAG_NONE:
 			i = i + len(tag) + len(">")
 		else:
 			i = i + len("/>") + len(tag) + len(">")
@@ -54,11 +70,22 @@ def readBuffer():
 	buffer += open(filePath, 'rU').read()
 	return buffer
 
-def nextStargTag(buffer, index):
+def printSimpleContent (indentDepth, simpleConent):
+	ind = ""
+	for i in range (0, indentDepth):
+		ind += tab
+	print ind + simpleConent["txt"]
+	
+	
+def nextStargTag(buffer, index, strContent):
+	strContent["txt"] = ""
 	while index < len(buffer):
 		if buffer[index] == '<':
+			#print "****simple content = " + strContent["txt"] + "***"
 			return index
+		strContent["txt"] += buffer[index]
 		index = index + 1
+		
 	#print "nextStargTag(), reached end of content"
 	return -1
 	
@@ -143,13 +170,15 @@ def getTagContent(buffer, index):
 	rangeHigh = closingTagIndex(buffer, index)
 	#no closing tag, single tag, no content between tags
 	if rangeHigh == -1:
-		return ("", index)
+		return ("", index, CLOSING_TAG_NONE)
 	#find the lower range start, skip until end of opening 
 	rangeLow = index
 	while buffer[rangeLow] != '>':
 		rangeLow = rangeLow + 1
 	
-	return (buffer[rangeLow + 1:rangeHigh - 2], rangeHigh - 2)
+	return (buffer[rangeLow + 1:rangeHigh - 2], rangeHigh - 2, CLOSING_TAG_NORMAL)
+
+
 	
 #print buffer
 #print buffer.find("td")
