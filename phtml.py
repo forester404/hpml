@@ -51,7 +51,7 @@ def processContent(content, indentInTabs):
 		print indent + tag + ":"
 		
 		#print tag args
-		args = readTagHeader (content, nextTagPos)
+		args, tagWargsLen = readTagHeader (content, nextTagPos)
 		printArgsMap(indentInTabs + 1, args)
 		
 		#process tag nested content
@@ -63,14 +63,12 @@ def processContent(content, indentInTabs):
 			#print "no tag content"
 		i = endTagPos 
 		
-		
-		
-		
 		#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
 		
 		if tagCode == CLOSING_TAG_NONE:
-			i = i + len(tag) + len(">")
-			print "**no closing tag"
+			#i = i + len(tag) + len(">")
+			i = i + tagWargsLen + len(">")
+			#print "**no closing tag"
 		else:
 			i = i + len("/>") + len(tag) + len(">")
 def readBuffer():
@@ -163,13 +161,18 @@ def readTag(buffer, startingIndex):
 	return tag
 
 #start index is the index of the opening "<"
+#ret atrb - map of attrb an vals
+#ret totLen = total length of entire openning tag and args, not 
+#including brakets 
 def readTagHeader (buffer, startingIndex):
 	atrbs  = {}
+	totLen = 0
 	i = startingIndex + 1 
 	fieldsStr = ""
 	while buffer[i] != ">":
 		fieldsStr += buffer[i]
 		i = i + 1 
+		totLen = totLen + 1
 	fieldsStrss = fieldsStr.split(" ")
 	#drop the tag itself
 	fieldsStrss.pop(0)
@@ -182,7 +185,7 @@ def readTagHeader (buffer, startingIndex):
 		else:
 			val = None 
 		atrbs[key] = val
-	return atrbs
+	return atrbs, totLen + 1
 
 #given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves
 #2nd return value is the position of the end of content (last char)
@@ -257,8 +260,13 @@ def testPrintArgs():
 	args["keyn"] = "valn"
 	printArgsMap(2, args)
 	
-#testGetContent()	
-#testReadHeader()
+def testReadArgsLen():
+	buf = " <body bgcolor=white>"
+	args, len = readTagHeader (buf, 0)
+	print len
+
+
+#testReadArgsLen()	
 topLevel()
-#testPrintArgs()
+
 
