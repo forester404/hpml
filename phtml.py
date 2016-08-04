@@ -1,4 +1,4 @@
-
+import re
 
 filePath = "sample2.html"
 
@@ -37,7 +37,8 @@ def processContent(content, indentInTabs):
 		nextTagPos = nextStargTag(content, i, strContent)
 		
 		#print simple content in spaces between tags 
-		printSimpleContent (indentInTabs, strContent)
+		if strContent["txt"]:
+			printSimpleContent (indentInTabs, strContent)
 		
 		
 		#if all inner complex elments processed (also true if content was just primitives)
@@ -78,11 +79,17 @@ def readBuffer():
 	return buffer
 
 def printSimpleContent (indentDepth, simpleConent):
+	
+	#if string is only non alphanumeric chars - abort
+	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
+	if m is None:
+		return
+	
 	ind = ""
 	line = simpleConent["txt"]
 	line = line.strip('\n')
 	line = line.strip('\t')
-	line = line.strip('\r\n')
+	line = line.strip("\r\n")
 	line = line.strip('\r')
 	#\r\n
 	for i in range (0, indentDepth):
@@ -265,7 +272,13 @@ def testReadArgsLen():
 	args, len = readTagHeader (buf, 0)
 	print len
 
-
+def testRe():
+	#m = re.search('(?<=abc)def', 'abcdef')
+	m = re.search('[a-zA-Z0-9_]', '  d  ')
+	print m is None
+	
+#testRe()
+	
 #testReadArgsLen()	
 topLevel()
 
