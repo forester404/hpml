@@ -1,7 +1,8 @@
 import re
 
-filePath = "sample2.html"
-
+#filePath = "sample2.html"
+#filePath = "ml5smpl.html"
+filePath = "ml5smpl_no_comments.html"
 
 TAG_CLOSING = 1
 TAG_OPENNING = 2
@@ -20,17 +21,22 @@ CLOSING_TAG_NORMAL = 2
 def topLevel():
 	#dbg_file = open("dbg.txt", "w")
 
-	buffer = readBuffer()
-	content, endPos, tagCode = getTagContent(buffer, 0)
+	buf = readBuffer()
+	
+	#print "buf " + buf
+	content, endPos, tagCode = getTagContent(buf, 0)
+	
+	
 	processContent(content, 0)
 	
 	#dbg_file.close()
 
 def processContent(content, indentInTabs):
+
+	
 	if not content:
 		return
-	#print "entering processContent(), content = "
-	#print content
+	
 	i = 0
 	while i < len(content):
 		strContent = {}
@@ -74,9 +80,9 @@ def processContent(content, indentInTabs):
 			i = i + len("/>") + len(tag) + len(">")
 def readBuffer():
 	#buffer = "Read buffer:\n"
-	buffer = ""
-	buffer += open(filePath, 'rU').read()
-	return buffer
+	buf = ""
+	buf += open(filePath, 'rU').read()
+	return buf
 
 def printSimpleContent (indentDepth, simpleConent):
 	
@@ -120,7 +126,7 @@ def closingTagIndex(buffer, startIndex):
 	nextTagStart = startIndex
 	tagStack = []
 	tag = readTag(buffer, startIndex)
-	endTag = "</" + tag + ">"
+	#endTag = "</" + tag + ">"
 	
 	while nextTagStart < len(buffer) and nextTagStart != -1:
 		nextTagStart = buffer.find(tag, nextTagStart + 1)
@@ -148,7 +154,8 @@ def tagType(buffer, index):
 	#print "entering isTagClosing, index = " + str(index)
 	if index < 1:
 		raise ValueError("tagType, index must have value > 0")
-	if buffer[index - 1] == "/":
+	#if buffer[index - 1] == "/":
+	if buffer[index - 2 : index ] == "</":
 		return TAG_CLOSING
 	if buffer[index - 1] == "<":
 		return TAG_OPENNING
@@ -196,18 +203,18 @@ def readTagHeader (buffer, startingIndex):
 
 #given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves
 #2nd return value is the position of the end of content (last char)
-def getTagContent(buffer, index):
-	rangeHigh = closingTagIndex(buffer, index)
+def getTagContent(buf, index):
+	rangeHigh = closingTagIndex(buf, index)
 	#no closing tag, single tag, no content between tags
 	if rangeHigh == -1:
 		return ("", index, CLOSING_TAG_NONE)
 	#find the lower range start, skip until end of opening 
 	rangeLow = index
-	while buffer[rangeLow] != '>':
+	while buf[rangeLow] != '>':
 		rangeLow = rangeLow + 1
 	
-	return (buffer[rangeLow + 1:rangeHigh - 2], rangeHigh - 2, CLOSING_TAG_NORMAL)
-
+	res =  (buf[rangeLow + 1:rangeHigh - 2], rangeHigh - 2, CLOSING_TAG_NORMAL)
+	return res
 
 	
 #print buffer
