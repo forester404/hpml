@@ -1,8 +1,8 @@
 import re
 
 #filePath = "sample2.html"
-#filePath = "ml5smpl.html"
-filePath = "ml5smpl_no_comments.html"
+filePath = "ml5smpl.html"
+#filePath = "ml5smpl_no_comments.html"
 
 TAG_CLOSING = 1
 TAG_OPENNING = 2
@@ -27,7 +27,10 @@ def topLevel():
 	content, endPos, tagCode = getTagContent(buf, 0)
 	
 	
-	processContent(content, 0)
+	#processContent(content, 0)
+	print "html:"
+	processContent(content, 1)
+	
 	
 	#dbg_file.close()
 
@@ -109,9 +112,15 @@ def nextStargTag(buffer, index, strContent):
 	contBuf = ""
 	while index < len(buffer):
 		if buffer[index] == '<':
-			#print "****simple content = " + strContent["txt"] + "***"
-			strContent["txt"] = contBuf
-			return index
+		#if buffer[index] == '<' and (index > len(buffer) - 3 or buffer[index + 1 : index +4] != "!--"):
+			#if it's a comment 
+			if index < len(buffer) - 3 and buffer[index + 1 : index + 4] == "!--":
+				commentEndIndex = buffer.find("-->") + 3
+				contBuf += buffer[index : commentEndIndex] 
+				index = commentEndIndex
+			else:	
+				strContent["txt"] = contBuf
+				return index
 		contBuf += buffer[index]
 		index = index + 1
 		
