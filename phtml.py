@@ -1,8 +1,10 @@
 import re
 
 #filePath = "sample2.html"
-filePath = "ml5smpl.html"
+#filePath = "ml5smpl.html"
 #filePath = "ml5smpl_no_comments.html"
+filePath = "ml5smpl_org.html"
+
 
 TAG_CLOSING = 1
 TAG_OPENNING = 2
@@ -23,8 +25,11 @@ def topLevel():
 
 	buf = readBuffer()
 	
+	rootStart = handlePreRoot(buf)
 	#print "buf " + buf
-	content, endPos, tagCode = getTagContent(buf, 0)
+	#content, endPos, tagCode = getTagContent(buf, 0)
+	content, endPos, tagCode = getTagContent(buf, rootStart)
+	
 	
 	
 	#processContent(content, 0)
@@ -33,6 +38,18 @@ def topLevel():
 	
 	
 	#dbg_file.close()
+#handles the content of the CONTENT element, return position of HTML element opening <
+def handlePreRoot(buf):
+	htmlPos = buf.find("<html", 0)
+	contentInfoIndex = buf.find("<!DOCTYPE", 0)
+	if contentInfoIndex == -1:
+		return htmlPos
+	contentStartPos = contentInfoIndex + len("<!DOCTYPE") + 1
+	closingPos = buf.find(">", contentStartPos)
+	print "!DOCTYPE:"
+	print tab + buf[contentStartPos : closingPos]
+	return htmlPos
+		
 
 def processContent(content, indentInTabs):
 
