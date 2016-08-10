@@ -10,7 +10,7 @@ TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
 
-TAB_WIDTH = 9
+TAB_WIDTH = 5
 #tab = "     "
 tab = "\t"
 #tab = "tab "
