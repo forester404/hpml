@@ -10,9 +10,9 @@ TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
 
-
-tab = "     "
-#tab = "\t"
+TAB_WIDTH = 9
+#tab = "     "
+tab = "\t"
 #tab = "tab "
 
 
@@ -26,8 +26,6 @@ def topLevel():
 	buf = readBuffer()
 	
 	rootStart = handlePreRoot(buf)
-	#print "buf " + buf
-	#content, endPos, tagCode = getTagContent(buf, 0)
 	content, endPos, tagCode = getTagContent(buf, rootStart)
 	
 	
@@ -47,7 +45,7 @@ def handlePreRoot(buf):
 	contentStartPos = contentInfoIndex + len("<!DOCTYPE") + 1
 	closingPos = buf.find(">", contentStartPos)
 	print "!DOCTYPE:"
-	print tab + buf[contentStartPos : closingPos]
+	print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	return htmlPos
 		
 
@@ -62,7 +60,7 @@ def processContent(content, indentInTabs):
 		strContent = {}
 		nextTagPos = nextStargTag(content, i, strContent)
 		
-		#print simple content in spaces between tags 
+		
 		if strContent["txt"]:
 			printSimpleContent (indentInTabs, strContent)
 		
@@ -75,7 +73,7 @@ def processContent(content, indentInTabs):
 		indent = ""
 		for k in range (0,indentInTabs):
 			indent += tab
-		print indent + tag + ":"
+		print (indent + tag + ":").expandtabs(TAB_WIDTH)
 		
 		#print tag args
 		args, tagWargsLen = readTagHeader (content, nextTagPos)
@@ -86,16 +84,12 @@ def processContent(content, indentInTabs):
 		if tagCode == CLOSING_TAG_NORMAL:
 			processContent(tagContent, indentInTabs + 1)
 		
-		#else:
-			#print "no tag content"
 		i = endTagPos 
 		
 		#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
 		
 		if tagCode == CLOSING_TAG_NONE:
-			#i = i + len(tag) + len(">")
-			i = i + tagWargsLen + len(">")
-			#print "**no closing tag"
+			i = i + tagWargsLen + len(">")	
 		else:
 			i = i + len("/>") + len(tag) + len(">")
 def readBuffer():
@@ -121,9 +115,7 @@ def printSimpleContent (indentDepth, simpleConent):
 	for i in range (0, indentDepth):
 		ind += tab
 	if line:	
-		print ind + line
-		#print "{{{" + ind + line + "}}}"
-	#dbg_file.write(ind + line)
+		print (ind + line).expandtabs(TAB_WIDTH)
 	
 def nextStargTag(buffer, index, strContent):
 	contBuf = ""
@@ -141,8 +133,6 @@ def nextStargTag(buffer, index, strContent):
 		contBuf += buffer[index]
 		index = index + 1
 		
-	#print "nextStargTag(), reached end of content"
-	#strContent["txt"] = ""
 	strContent["txt"] = contBuf
 	return -1
 	
@@ -177,7 +167,6 @@ def closingTagIndex(buffer, startIndex):
 #given a location of starting of a tab(1st char), returns true iff the tag is closing one 
 #the location is assumed to be in a tag, either openning or closing one 
 def tagType(buffer, index):
-	#print "entering isTagClosing, index = " + str(index)
 	if index < 1:
 		raise ValueError("tagType, index must have value > 0")
 	#if buffer[index - 1] == "/":
@@ -197,7 +186,6 @@ def readTag(buffer, startingIndex):
 	while buffer[i] != ">" and buffer[i] != " ":
 		tag += buffer[i]
 		i = i + 1
-	#print "***tag = " + tag
 	return tag
 
 #start index is the index of the opening "<"
@@ -242,40 +230,30 @@ def getTagContent(buf, index):
 	res =  (buf[rangeLow + 1:rangeHigh - 2], rangeHigh - 2, CLOSING_TAG_NORMAL)
 	return res
 
-	
-#print buffer
-#print buffer.find("td")
-
 
 #assuming the root tag opens at index 0 
 
 def printArgsMap(indentDepth, args):
 	indBlck = ""
-	#indBlck = str(indentDepth)
 	for i in range(0, indentDepth):
 			indBlck += tab
-	#for attr, value in args.__dict__.iteritems():
+	
 	for attr, value in args.iteritems():
-		#print indBlck + "{}={}".format(attr, value)
-		print indBlck + attr + "=" + value
+		print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
 	
 def testReadTag():
 	buffer = readBuffer()
-	print(readTag(buffer, 0))
+	print(readTag(buffer, 0)).expandtabs(TAB_WIDTH)
 
 def testSimpleStringOps():
 	tag = "tag"
-	print "</" + tag + ">"
+	print ("</" + tag + ">").expandtabs(TAB_WIDTH)
 	
 def testFindFrom():
-	#print find("abxxab", 3)
-	print "abxxab".find("abrrr", 3)
+	print ("abxxab".find("abrrr", 3)).expandtabs(TAB_WIDTH)
 	
 	
-def testTagIsClosing():
-	print isTagClosing ("<head>", 1)
-	print isTagClosing ("</head>", 2)
-	print isTagClosing ("head>", 1)
+
 	
 	
 def testFindEndOfRoot():
