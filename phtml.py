@@ -51,7 +51,10 @@ def handlePreRoot(buf, outBuf):
 	print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	return htmlPos
-		
+
+
+
+
 
 def processContent(content, indentInTabs, outBuf):
 
@@ -72,31 +75,73 @@ def processContent(content, indentInTabs, outBuf):
 		#if all inner complex elments processed (also true if content was just primitives)
 		if nextTagPos == -1:
 			return
-		#print tag
-		tag = readTag(content, nextTagPos)
-		indent = ""
-		for k in range (0,indentInTabs):
-			indent += tab
-		print (indent + tag + ":").expandtabs(TAB_WIDTH)
-		outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
 		
-		#print tag args
-		args, tagWargsLen = readTagHeader (content, nextTagPos)
-		printArgsMap(indentInTabs + 1, args, outBuf)
-		
-		#process tag nested content
-		tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
-		if tagCode == CLOSING_TAG_NORMAL:
-			processContent(tagContent, indentInTabs + 1, outBuf)
-		
-		i = endTagPos 
-		
-		#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
-		
-		if tagCode == CLOSING_TAG_NONE:
-			i = i + tagWargsLen + len(">")	
+		if itsAComment(content, nextTagPos):
+			commentBlockLen = handleComment(content, indentInTabs, nextTagPos, outBuf)
+			i = i + commentBlockLen
+		#else, it's a normal tag 
 		else:
-			i = i + len("/>") + len(tag) + len(">")
+			#print tag
+			tag = readTag(content, nextTagPos)
+			indent = ""
+			for k in range (0,indentInTabs):
+				indent += tab
+			print (indent + tag + ":").expandtabs(TAB_WIDTH)
+			outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
+			
+			#print tag args
+			args, tagWargsLen = readTagHeader (content, nextTagPos)
+			printArgsMap(indentInTabs + 1, args, outBuf)
+			
+			#process tag nested content
+			tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
+			if tagCode == CLOSING_TAG_NORMAL:
+				processContent(tagContent, indentInTabs + 1, outBuf)
+			
+			i = endTagPos 
+			
+			#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
+			
+			if tagCode == CLOSING_TAG_NONE:
+				i = i + tagWargsLen + len(">")	
+			else:
+				i = i + len("/>") + len(tag) + len(">")
+
+
+#parses and outputs a comment, returns the complet size of the block including tags
+def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
+	ind = bldInd(indentInTabs)
+	pos = startOfOPenTagPos
+	output = ""
+	startCont = pos + len("<!--")
+	endCont = buf.find("-->")
+	content = buf[startCont:endCont]
+	contentLines = content.split('\n')
+	output += "\n" + ind + "#:"
+	for line in contentLines:
+		output +=  "\n" + ind + tab + line
+	
+	#output +=  "\n" + ind + tab + content
+	print output.expandtabs(TAB_WIDTH)
+	outBuf["txt"] += output.expandtabs(TAB_WIDTH)
+	return endCont + len("-->") - startOfOPenTagPos
+	
+	
+
+def bldInd(numberOfTabs):
+	out = ""
+	for i in range(0,numberOfTabs):
+		out += tab
+	return out
+
+def itsAComment(buf, nextTagPos):
+	#for it to be a comment, it must at least the length of openneing and closing tags away from end of buf
+	if len(buf) < nextTagPos + 6:
+		return False
+	#true iff matches open tag
+	openTagMatch = buf[nextTagPos + 1 : nextTagPos + 4] == "!--"
+	return openTagMatch
+
 def readBuffer():
 	#buffer = "Read buffer:\n"
 	buf = ""
@@ -127,15 +172,17 @@ def nextStargTag(buffer, index, strContent):
 	contBuf = ""
 	while index < len(buffer):
 		if buffer[index] == '<':
-		#if buffer[index] == '<' and (index > len(buffer) - 3 or buffer[index + 1 : index +4] != "!--"):
 			#if it's a comment 
-			if index < len(buffer) - 3 and buffer[index + 1 : index + 4] == "!--":
+			"""if index < len(buffer) - 3 and buffer[index + 1 : index + 4] == "!--":
 				commentEndIndex = buffer.find("-->") + 3
 				contBuf += buffer[index : commentEndIndex] 
 				index = commentEndIndex
 			else:	
 				strContent["txt"] = contBuf
 				return index
+			"""
+			strContent["txt"] = contBuf
+			return index
 		contBuf += buffer[index]
 		index = index + 1
 		
