@@ -22,22 +22,24 @@ CLOSING_TAG_NORMAL = 2
 
 def topLevel():
 	#dbg_file = open("dbg.txt", "w")
-
+	outBuf = {}
+	outBuf["txt"] = ""
 	buf = readBuffer()
 	
-	rootStart = handlePreRoot(buf)
+	rootStart = handlePreRoot(buf, outBuf)
 	content, endPos, tagCode = getTagContent(buf, rootStart)
 	
 	
 	
 	#processContent(content, 0)
 	print "html:"
-	processContent(content, 1)
-	
+	outBuf["txt"] += "\n" + "html:"
+	processContent(content, 1, outBuf)
+	return outBuf["txt"]
 	
 	#dbg_file.close()
 #handles the content of the CONTENT element, return position of HTML element opening <
-def handlePreRoot(buf):
+def handlePreRoot(buf, outBuf):
 	htmlPos = buf.find("<html", 0)
 	contentInfoIndex = buf.find("<!DOCTYPE", 0)
 	if contentInfoIndex == -1:
@@ -45,11 +47,13 @@ def handlePreRoot(buf):
 	contentStartPos = contentInfoIndex + len("<!DOCTYPE") + 1
 	closingPos = buf.find(">", contentStartPos)
 	print "!DOCTYPE:"
+	outBuf["txt"] += "\n" + "!DOCTYPE:"
 	print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
+	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	return htmlPos
 		
 
-def processContent(content, indentInTabs):
+def processContent(content, indentInTabs, outBuf):
 
 	
 	if not content:
@@ -62,7 +66,7 @@ def processContent(content, indentInTabs):
 		
 		
 		if strContent["txt"]:
-			printSimpleContent (indentInTabs, strContent)
+			printSimpleContent (indentInTabs, strContent, outBuf)
 		
 		
 		#if all inner complex elments processed (also true if content was just primitives)
@@ -74,15 +78,16 @@ def processContent(content, indentInTabs):
 		for k in range (0,indentInTabs):
 			indent += tab
 		print (indent + tag + ":").expandtabs(TAB_WIDTH)
+		outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
 		
 		#print tag args
 		args, tagWargsLen = readTagHeader (content, nextTagPos)
-		printArgsMap(indentInTabs + 1, args)
+		printArgsMap(indentInTabs + 1, args, outBuf)
 		
 		#process tag nested content
 		tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
 		if tagCode == CLOSING_TAG_NORMAL:
-			processContent(tagContent, indentInTabs + 1)
+			processContent(tagContent, indentInTabs + 1, outBuf)
 		
 		i = endTagPos 
 		
@@ -98,7 +103,7 @@ def readBuffer():
 	buf += open(filePath, 'rU').read()
 	return buf
 
-def printSimpleContent (indentDepth, simpleConent):
+def printSimpleContent (indentDepth, simpleConent, outBuf):
 	
 	#if string is only non alphanumeric chars - abort
 	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
@@ -116,6 +121,7 @@ def printSimpleContent (indentDepth, simpleConent):
 		ind += tab
 	if line:	
 		print (ind + line).expandtabs(TAB_WIDTH)
+		outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
 	
 def nextStargTag(buffer, index, strContent):
 	contBuf = ""
@@ -233,17 +239,21 @@ def getTagContent(buf, index):
 
 #assuming the root tag opens at index 0 
 
-def printArgsMap(indentDepth, args):
+def printArgsMap(indentDepth, args, outBuf):
 	indBlck = ""
 	for i in range(0, indentDepth):
 			indBlck += tab
 	
 	for attr, value in args.iteritems():
 		print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
+		outBuf["txt"] += "\n" + (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
+
+#-------------------------------------------TESTS-----------------------------------------
 	
 def testReadTag():
 	buffer = readBuffer()
 	print(readTag(buffer, 0)).expandtabs(TAB_WIDTH)
+	
 
 def testSimpleStringOps():
 	tag = "tag"
@@ -291,6 +301,9 @@ def testRe():
 #testRe()
 	
 #testReadArgsLen()	
-topLevel()
+parsed = topLevel()
+print "------------------------------------"
+print parsed
+print "done"
 
 
