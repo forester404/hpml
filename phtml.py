@@ -114,6 +114,7 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	pos = startOfOPenTagPos
 	output = ""
 	startCont = pos + len("<!--")
+	#startCont = pos + len("!--")
 	endCont = buf.find("-->")
 	content = buf[startCont:endCont]
 	contentLines = content.split('\n')
