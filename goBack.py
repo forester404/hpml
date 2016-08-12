@@ -93,6 +93,14 @@ def builHTMLTags(tag, propsMap):
     openTag += ">"
     
     closeTag = "</" + tag+ ">"
+    
+    openTag = openTag.translate(None, "\n")
+    closeTag = closeTag.translate(None, "\n")
+    openTag = openTag.translate(None, "\t")
+    closeTag = closeTag.translate(None, "\t")
+    
+    #openTag = re.sub("\\r|\\n", "", openTag)
+    #closeTag = re.sub("\\r|\\n", "", closeTag)
     return openTag, closeTag
 
 #baseTagBuf is an html represtaton of a tag <tag atr=val atr2=val2>
@@ -120,7 +128,7 @@ def  extractArgVal(block):
 #the tag is supposed to be the first line, the content the rest of the block
 def extractTagContent(block):
     colPos = block.find(":")
-    return block[0:colPos - 1], block[colPos + 1:]
+    return block[0:colPos], block[colPos + 1:]
 
 testReadBlock()
     

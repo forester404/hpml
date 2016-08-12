@@ -49,7 +49,8 @@ def handlePreRoot(buf, outBuf):
 	print "!DOCTYPE:"
 	outBuf["txt"] += "\n" + "!DOCTYPE:"
 	print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
-	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
+	#outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
+	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos])
 	return htmlPos
 
 
@@ -87,7 +88,8 @@ def processContent(content, indentInTabs, outBuf):
 			for k in range (0,indentInTabs):
 				indent += tab
 			print (indent + tag + ":").expandtabs(TAB_WIDTH)
-			outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
+			#outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
+			outBuf["txt"] += "\n" + (indent + tag + ":")
 			
 			#print tag args
 			args, tagWargsLen = readTagHeader (content, nextTagPos)
@@ -124,7 +126,9 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	
 	#output +=  "\n" + ind + tab + content
 	print output.expandtabs(TAB_WIDTH)
-	outBuf["txt"] += output.expandtabs(TAB_WIDTH)
+	#outBuf["txt"] += output.expandtabs(TAB_WIDTH)
+	outBuf["txt"] += output
+	
 	return endCont + len("-->") - startOfOPenTagPos
 	
 	
@@ -167,7 +171,8 @@ def printSimpleContent (indentDepth, simpleConent, outBuf):
 		ind += tab
 	if line:	
 		print (ind + line).expandtabs(TAB_WIDTH)
-		outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
+		#outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
+		outBuf["txt"] += "\n" + (ind + line)
 	
 def nextStargTag(buffer, index, strContent):
 	contBuf = ""
@@ -294,7 +299,9 @@ def printArgsMap(indentDepth, args, outBuf):
 	
 	for attr, value in args.iteritems():
 		print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
-		outBuf["txt"] += "\n" + (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
+		#outBuf["txt"] += "\n" + (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
+		outBuf["txt"] += "\n" + (indBlck + attr + "=" + value)
+		
 
 #-------------------------------------------TESTS-----------------------------------------
 	
