@@ -4,7 +4,8 @@ tab = "\t"
 
 BLOCK_TYPE_ARG_VAL = 1
 BLOCK_TYPE_TAG_CONT = 2
-
+BLOCK_TYPE_LEAF = 3
+BLOCK_TYPE_COMMENT = 4 
 
 
 #given depth of indentitation, function searches for next tag with similar indentitation, that is, sibling tag
@@ -74,7 +75,47 @@ def processBuf(buf, baseIndDepth):
             htmlOut += "\n" + indent + closeTagHtml
             continue 
         
+        if  blockType == BLOCK_TYPE_LEAF:
+            htmlLeaf = toHtmlLeaf(block, baseIndDepth)
+            htmlOut += htmlLeaf
+            continue
+        
+        
+        if blockType == BLOCK_TYPE_COMMENT:
+            htmlComment = toHtmlComment(baseIndDepth, block)
+            htmlOut += htmlComment
+            continue
+        
+        
     return htmlOut, propsMap 
+ 
+ 
+#return the raw content of given block - the content at    tag:content 
+def extractSimpleContent(block, depth):
+    parts = block.split(":")
+    if len(parts) > 1:
+        out = parts[1]
+        return out
+    return None
+
+def toHtmlLeaf(block, depth):
+    rawContent =  extractSimpleContent(block, depth)
+    out = ""
+    indent = indentStr(depth)
+    lines = rawContent.split("\n")
+    for line in lines :
+        line = line.strip()
+        out += "\n" + indent + line
+    return out
+ 
+def toHtmlComment(indentDepth, block): 
+    comment = extractSimpleContent(block)
+    indent = indentStr(indentDepth)
+    out = ""
+    out += "\n<!--" 
+    out += "\n" + comment
+    out += "\n-->"   
+        
         
 def  indentStr(depth):
     out = ""
@@ -113,6 +154,13 @@ def builHTMLTags(tag, propsMap):
 def extractBlockType(block):
     pos = block.find(":")
     if pos > 0:
+        tagName = block.split(":")[0]
+        tagName = tagName.translate(None, "\t")
+        tagName = tagName.translate(None, "\n")
+        if tagName == "leaf":
+            return BLOCK_TYPE_LEAF
+        if tagName == "#":
+            return BLOCK_TYPE_COMMENT
         return BLOCK_TYPE_TAG_CONT
     else:
         return BLOCK_TYPE_ARG_VAL
