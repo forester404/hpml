@@ -13,7 +13,7 @@ BLOCK_TYPE_COMMENT = 4
 def blockEnd(indentDepthTabs, buf, tagStartPos):
     #a regexp for sequence of tabs followed alphnumeric char
     #reg = '\\t{' + str(indentDepthTabs) + '}[a-zA-Z0-9]'
-    reg = '\\n\\t{' + str(indentDepthTabs) + '}[a-zA-Z0-9]'
+    reg = '\\n\\t{' + str(indentDepthTabs) + '}[a-zA-Z0-9#]'
 
     pos = re.search(reg, buf[tagStartPos:-1])
     if pos:
@@ -91,15 +91,21 @@ def processBuf(buf, baseIndDepth):
  
  
 #return the raw content of given block - the content at    tag:content 
-def extractSimpleContent(block, depth):
+def extractSimpleContent(block):
+    """
     parts = block.split(":")
     if len(parts) > 1:
         out = parts[1]
         return out
     return None
+    """
+    colPos = block.find(":")
+    if colPos == -1:
+        return None
+    return block[colPos + 1:]
 
 def toHtmlLeaf(block, depth):
-    rawContent =  extractSimpleContent(block, depth)
+    rawContent =  extractSimpleContent(block)
     out = ""
     indent = indentStr(depth)
     lines = rawContent.split("\n")
@@ -113,10 +119,14 @@ def toHtmlComment(indentDepth, block):
     comment = extractSimpleContent(block)
     indent = indentStr(indentDepth)
     out = ""
-    out += "\n<!--" 
-    out += "\n" + comment
-    out += "\n-->"   
-        
+    out += "\n" + indent + "<!--" 
+    #out += "\n" + indent + tab + comment
+    lines = comment.split("\n")
+    for line in lines:
+        if line:
+            out += "\n" + indent + tab + line 
+    out += "\n" + indent +  "-->"   
+    return out   
         
 def  indentStr(depth):
     out = ""
