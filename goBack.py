@@ -104,8 +104,9 @@ def toHtmlLeaf(block, depth):
     indent = indentStr(depth)
     lines = rawContent.split("\n")
     for line in lines :
-        line = line.strip()
-        out += "\n" + indent + line
+        if line:
+            line = line.strip()
+            out += "\n" + indent + line
     return out
  
 def toHtmlComment(indentDepth, block): 
