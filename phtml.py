@@ -387,9 +387,9 @@ def testRe():
 #testRe()
 	
 #testReadArgsLen()	
-parsed = topLevel()
-print "------------------------------------"
-print parsed
-print "done"
+#parsed = topLevel()
+#print "------------------------------------"
+#print parsed
+#print "done"
 
 

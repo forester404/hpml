@@ -163,6 +163,15 @@ def builHTMLTags(tag, propsMap):
 
 #block is assumed to be either in the form key=val, tag <no val> or tag:<newline tab>tagContent        
 def extractBlockType(block):
+    #block is atr=val block
+    splited = block.split("=")
+    if len(splited) == 2:
+        return BLOCK_TYPE_ARG_VAL
+    # block is atr with no val
+    if block.find(":") == -1 and block.find("=") == -1:
+        return BLOCK_TYPE_ARG_VAL
+    
+    
     pos = block.find(":")
     if pos > 0:
         tagName = block.split(":")[0]
@@ -175,6 +184,9 @@ def extractBlockType(block):
         return BLOCK_TYPE_TAG_CONT
     else:
         return BLOCK_TYPE_ARG_VAL
+    
+
+
     
 def  extractArgVal(block):
     tokens = block.split("=")
@@ -190,5 +202,35 @@ def extractTagContent(block):
     colPos = block.find(":")
     return block[0:colPos], block[colPos + 1:]
 
-testReadBlock()
+
+#return true iff the 2nd line opens with one tab more than the first and the firs line contains a colon
+def isBlockContainingInnerIndent(block):
+    if not block:
+        return False
+    lines = block.split('\n')
+    if len(lines) < 2:
+        return False
+    if lines[0].find(":") == -1:
+        return False
+    #search for indentation: 2nd line has 1 tab more than 1st
+    if countTagbsAtPrefix(lines[0]) + 1 == countTagbsAtPrefix(lines[1]):
+        return True
+    return False
+        
+
+def countTagbsAtPrefix(line):
+    pos = 0
+    tCounter = 0
+    #find the first 
+    pos = line.find("\t")
+    if pos == -1:
+        return 0
+    while pos < len(line) and line[pos] == "\t":
+        pos = pos + 1
+        tCounter = tCounter + 1
+    return tCounter
+
+        
+    
+#testReadBlock()
     
