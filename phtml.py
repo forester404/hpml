@@ -32,7 +32,7 @@ def topLevel():
 	
 	
 	#processContent(content, 0)
-	print "html:"
+	#print "html:"
 	outBuf["txt"] += "\n" + "html:"
 	processContent(content, 1, outBuf)
 	return outBuf["txt"]
@@ -46,9 +46,9 @@ def handlePreRoot(buf, outBuf):
 		return htmlPos
 	contentStartPos = contentInfoIndex + len("<!DOCTYPE") + 1
 	closingPos = buf.find(">", contentStartPos)
-	print "!DOCTYPE:"
+	#print "!DOCTYPE:"
 	outBuf["txt"] += "\n" + "!DOCTYPE:"
-	print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
+	#print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	#outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos])
 	return htmlPos
@@ -87,7 +87,7 @@ def processContent(content, indentInTabs, outBuf):
 			indent = ""
 			for k in range (0,indentInTabs):
 				indent += tab
-			print (indent + tag + ":").expandtabs(TAB_WIDTH)
+			#print (indent + tag + ":").expandtabs(TAB_WIDTH)
 			#outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
 			outBuf["txt"] += "\n" + (indent + tag + ":")
 			
@@ -125,7 +125,7 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 		output +=  "\n" + ind + tab + line
 	
 	#output +=  "\n" + ind + tab + content
-	print output.expandtabs(TAB_WIDTH)
+	#print output.expandtabs(TAB_WIDTH)
 	#outBuf["txt"] += output.expandtabs(TAB_WIDTH)
 	outBuf["txt"] += output
 	
@@ -153,6 +153,7 @@ def readBuffer():
 	buf += open(filePath, 'rU').read()
 	return buf
 
+"""
 def printSimpleContent (indentDepth, simpleConent, outBuf):
 	
 	#if string is only non alphanumeric chars - abort
@@ -173,6 +174,36 @@ def printSimpleContent (indentDepth, simpleConent, outBuf):
 		print (ind + line).expandtabs(TAB_WIDTH)
 		#outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
 		outBuf["txt"] += "\n" + (ind + line)
+"""		
+def printSimpleContent (indentDepth, simpleConent, outBuf):
+	
+	#if string is only non alphanumeric chars - abort
+	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
+	if m is None:
+		return
+	
+	ind = ""
+	buf = simpleConent["txt"]
+	#line = line.strip('\n')
+	buf = buf.strip('\t')
+	#line = line.strip("\r\n")
+	buf = buf.strip('\r')
+	#\r\n
+	
+	for i in range (0, indentDepth):
+		ind += tab
+	lines = buf.split("\n")
+	#print "\n" + ind + "leaf:"
+	outBuf["txt"] += "\n" + ind + "leaf:"
+	for line in lines:
+		if line:
+			line = line.strip()
+			out = "\n" + ind + tab + line
+			#print (out).expandtabs(TAB_WIDTH)
+			#outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
+			outBuf["txt"] += out
+	
+	
 	
 def nextStargTag(buffer, index, strContent):
 	contBuf = ""
@@ -298,7 +329,7 @@ def printArgsMap(indentDepth, args, outBuf):
 			indBlck += tab
 	
 	for attr, value in args.iteritems():
-		print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
+		#print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
 		#outBuf["txt"] += "\n" + (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
 		outBuf["txt"] += "\n" + (indBlck + attr + "=" + value)
 		
