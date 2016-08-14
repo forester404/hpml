@@ -69,7 +69,8 @@ def processBuf(buf, baseIndDepth):
             openTagHtml, closeTagHtml = builHTMLTags(tag, deepArgsMap)
             indent = indentStr(baseIndDepth)
             htmlOut += "\n" + indent + openTagHtml
-            htmlOut += "\n" + indent + tab + contentasHTML
+            #htmlOut += "\n" + indent + tab + contentasHTML
+            htmlOut += indent + tab + contentasHTML
             htmlOut += "\n" + indent + closeTagHtml
             continue 
         
