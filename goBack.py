@@ -6,6 +6,7 @@ BLOCK_TYPE_ARG_VAL = 1
 BLOCK_TYPE_TAG_CONT = 2
 BLOCK_TYPE_LEAF = 3
 BLOCK_TYPE_COMMENT = 4 
+BLOCK_TYPE_DOCTYPE = 5
 
 
 #given depth of indentitation, function searches for next tag with similar indentitation, that is, sibling tag
@@ -64,15 +65,16 @@ def processBuf(buf, baseIndDepth):
             #addArgVal(baseTagBuf, key, val)
             propsMap[key] = val
             continue
-        if blockType == BLOCK_TYPE_TAG_CONT:
+        if blockType == BLOCK_TYPE_TAG_CONT or blockType == BLOCK_TYPE_DOCTYPE:
             tag, bufChild = extractTagContent(block)
             contentasHTML, deepArgsMap = processBuf(bufChild, baseIndDepth + 1)
             openTagHtml, closeTagHtml = builHTMLTags(tag, deepArgsMap)
             indent = indentStr(baseIndDepth)
             htmlOut += "\n" + indent + openTagHtml
-            #htmlOut += "\n" + indent + tab + contentasHTML
             htmlOut += indent + tab + contentasHTML
-            htmlOut += "\n" + indent + closeTagHtml
+            #htmlOut += "\n" + indent + closeTagHtml
+            if blockType != BLOCK_TYPE_DOCTYPE:
+                htmlOut += "\n" + indent + closeTagHtml
             continue 
         
         if  blockType == BLOCK_TYPE_LEAF:
@@ -199,6 +201,8 @@ def extractBlockType(block):
             return BLOCK_TYPE_LEAF
         if tagName == "#":
             return BLOCK_TYPE_COMMENT
+        if tagName == "!DOCTYPE":
+            return BLOCK_TYPE_DOCTYPE
         return BLOCK_TYPE_TAG_CONT
     raise Exception("could not intrepret block:" + block)
 
