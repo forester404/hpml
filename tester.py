@@ -31,7 +31,7 @@ def testRecongnizeIdentBlock():
     print goBack.isBlockContainingInnerIndent(block)
     
 
-#testBackAndForth()
+testBackAndForth()
 
-testRecongnizeIdentBlock()
+#testRecongnizeIdentBlock()
 #testCountTabs()

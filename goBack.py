@@ -162,7 +162,7 @@ def builHTMLTags(tag, propsMap):
     
 
 #block is assumed to be either in the form key=val, tag <no val> or tag:<newline tab>tagContent        
-def extractBlockType(block):
+def extractBlockTypeOld(block):
     #block is atr=val block
     splited = block.split("=")
     if len(splited) == 2:
@@ -186,6 +186,21 @@ def extractBlockType(block):
         return BLOCK_TYPE_ARG_VAL
     
 
+def extractBlockType(block):
+    if not isBlockContainingInnerIndent(block):
+        return BLOCK_TYPE_ARG_VAL
+    #a block with indentation 
+    pos = block.find(":")
+    if pos > 0:
+        tagName = block.split(":")[0]
+        tagName = tagName.translate(None, "\t")
+        tagName = tagName.translate(None, "\n")
+        if tagName == "leaf":
+            return BLOCK_TYPE_LEAF
+        if tagName == "#":
+            return BLOCK_TYPE_COMMENT
+        return BLOCK_TYPE_TAG_CONT
+    raise Exception("could not intrepret block:" + block)
 
     
 def  extractArgVal(block):
@@ -210,10 +225,15 @@ def isBlockContainingInnerIndent(block):
     lines = block.split('\n')
     if len(lines) < 2:
         return False
-    if lines[0].find(":") == -1:
-        return False
+    i = 0 
+    #search the line that contains the tag
+    while lines[i].find(":") == -1:
+        #tag can not be later than the line before last
+        if i == len(lines) - 2:
+            return False
+        i = i + 1
     #search for indentation: 2nd line has 1 tab more than 1st
-    if countTagbsAtPrefix(lines[0]) + 1 == countTagbsAtPrefix(lines[1]):
+    if countTagbsAtPrefix(lines[i]) + 1 == countTagbsAtPrefix(lines[i+1]):
         return True
     return False
         
