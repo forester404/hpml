@@ -1,7 +1,5 @@
 import re
 
-filePath = "ml5smpl_org.html"
-
 TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
@@ -13,18 +11,7 @@ CLOSING_TAG_NONE = 1
 CLOSING_TAG_NORMAL = 2
 
 
-def topLevel():
-	"""
-	reads an html file into a buffer, parses it to cleanView 
-	"""
-	outBuf = {}
-	outBuf["txt"] = ""
-	buf = readBuffer()
-	rootStart = handlePreRoot(buf, outBuf)
-	content, endPos, tagCode = getTagContent(buf, rootStart)
-	outBuf["txt"] += "\n" + "html:"
-	processContent(content, 1, outBuf)
-	return outBuf["txt"]
+
 	
 	
 def handlePreRoot(buf, outBuf):
@@ -140,10 +127,7 @@ def itsAComment(buf, nextTagPos):
 
 
 
-def readBuffer():
-	buf = ""
-	buf += open(filePath, 'rU').read()
-	return buf
+
 
 def processSimpleContent (indentDepth, simpleConent, outBuf):
 	

@@ -1,12 +1,26 @@
 import goBack
 import phtml
+import utils
 
-orgHtmlFilePath = "ml5smpl_org.html"
+TESTING_INPUT_HTML1 = "ml5smpl_org.html"
 
+filePath = "ml5smpl_org.html"
 
+def topLevel(filePath):
+    """
+    reads an html file into a buffer, parses it to cleanView 
+    """
+    outBuf = {}
+    outBuf["txt"] = ""
+    buf = utils.readBuffer(filePath)
+    rootStart = phtml.handlePreRoot(buf, outBuf)
+    content, endPos, tagCode = phtml.getTagContent(buf, rootStart)
+    outBuf["txt"] += "\n" + "html:"
+    phtml.processContent(content, 1, outBuf)
+    return outBuf["txt"]
 
 def testBackAndForth():
-    parsed = phtml.topLevel()
+    parsed = topLevel(TESTING_INPUT_HTML1)
     print parsed
     print "-----------and back to:-------------------"
     unParsed = goBack.processBuf(parsed, 0)
