@@ -1,10 +1,11 @@
 import re
+import utils
 
 TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
 TAB_WIDTH = 5
-tab = "\t"
+
 
 
 CLOSING_TAG_NONE = 1
@@ -27,7 +28,7 @@ def handlePreRoot(buf, outBuf):
 	contentStartPos = contentInfoIndex + len("<!DOCTYPE") + 1
 	closingPos = buf.find(">", contentStartPos)
 	outBuf["txt"] += "\n" + "!DOCTYPE:"
-	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos])
+	outBuf["txt"] += "\n" + (utils.TAB + buf[contentStartPos : closingPos])
 	return htmlPos
 
 
@@ -62,7 +63,7 @@ def processContent(content, indentInTabs, outBuf):
 		else:
 			#output tag
 			tag = readTag(content, nextTagPos)
-			indent = bldInd(indentInTabs)	
+			indent = utils.bldInd(indentInTabs)	
 			outBuf["txt"] += "\n" + (indent + tag + ":")
 			#output tag args
 			args, tagWargsLen = readTagHeader (content, nextTagPos)
@@ -90,7 +91,7 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	
 	how:baiscaly the closing comment tag is searched, and the content is added to output buffer interpreted to cleanView
 	"""
-	ind = bldInd(indentInTabs)
+	ind = utils.bldInd(indentInTabs)
 	pos = startOfOPenTagPos
 	output = ""
 	startCont = pos + len("<!--")
@@ -99,22 +100,16 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	contentLines = content.split('\n')
 	output += "\n" + ind + "#:"
 	for line in contentLines:
-		output +=  "\n" + ind + tab + line
+		output +=  "\n" + ind + utils.TAB + line
 	outBuf["txt"] += output
 	
 	return endCont + len("-->") - startOfOPenTagPos
 	
 	
 
-def bldInd(numberOfTabs):
-	"""builds indentation string out of tab chars"""
-	out = ""
-	for i in range(0,numberOfTabs):
-		out += tab
-	return out
-
 def itsAComment(buf, nextTagPos):
 	"""
+	returns whether given input is an html comment 
 	buf - raw html
 	nextTagPos - position of suspected tag begining 
 	"""
@@ -130,7 +125,12 @@ def itsAComment(buf, nextTagPos):
 
 
 def processSimpleContent (indentDepth, simpleConent, outBuf):
-	
+	"""
+	interpret and output raw html that is leaf, that is not containing tag elements
+	indentDepth -- depth of subtree indentation
+	simpleConent -- object containing raw html input 
+	outBuf -- buffer to write output on 
+	"""
 	#if string is only non alphanumeric chars - abort
 	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
 	if m is None:
@@ -145,14 +145,14 @@ def processSimpleContent (indentDepth, simpleConent, outBuf):
 	#\r\n
 	
 	for i in range (0, indentDepth):
-		ind += tab
+		ind += utils.TAB
 	lines = buf.split("\n")
 	#print "\n" + ind + "leaf:"
 	outBuf["txt"] += "\n" + ind + "leaf:"
 	for line in lines:
 		if line:
 			line = line.strip()
-			out = "\n" + ind + tab + line
+			out = "\n" + ind + utils.TAB + line
 			#print (out).expandtabs(TAB_WIDTH)
 			#outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
 			outBuf["txt"] += out
@@ -160,18 +160,10 @@ def processSimpleContent (indentDepth, simpleConent, outBuf):
 	
 	
 def nextStargTag(buffer, index, strContent):
+	"""finds position in given contnet of beginning of next tag"""
 	contBuf = ""
 	while index < len(buffer):
 		if buffer[index] == '<':
-			#if it's a comment 
-			"""if index < len(buffer) - 3 and buffer[index + 1 : index + 4] == "!--":
-				commentEndIndex = buffer.find("-->") + 3
-				contBuf += buffer[index : commentEndIndex] 
-				index = commentEndIndex
-			else:	
-				strContent["txt"] = contBuf
-				return index
-			"""
 			strContent["txt"] = contBuf
 			return index
 		contBuf += buffer[index]
@@ -280,7 +272,7 @@ def getTagContent(buf, index):
 def printArgsMap(indentDepth, args, outBuf):
 	indBlck = ""
 	for i in range(0, indentDepth):
-			indBlck += tab
+			indBlck += utils.TAB
 	
 	for attr, value in args.iteritems():
 		#print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
@@ -289,7 +281,7 @@ def printArgsMap(indentDepth, args, outBuf):
 		
 
 #-------------------------------------------TESTS-----------------------------------------
-	
+"""	
 def testReadTag():
 	buffer = readBuffer()
 	print(readTag(buffer, 0)).expandtabs(TAB_WIDTH)
@@ -337,13 +329,6 @@ def testRe():
 	#m = re.search('(?<=abc)def', 'abcdef')
 	m = re.search('[a-zA-Z0-9_]', '  d  ')
 	print m is None
-	
-#testRe()
-	
-#testReadArgsLen()	
-#parsed = topLevel()
-#print "------------------------------------"
-#print parsed
-#print "done"
+	"""
 
 
