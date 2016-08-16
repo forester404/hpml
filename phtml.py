@@ -1,55 +1,45 @@
 import re
 
-#filePath = "sample2.html"
-#filePath = "ml5smpl.html"
-#filePath = "ml5smpl_no_comments.html"
 filePath = "ml5smpl_org.html"
-
 
 TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
-
 TAB_WIDTH = 5
-#tab = "     "
 tab = "\t"
-#tab = "tab "
 
 
 CLOSING_TAG_NONE = 1
 CLOSING_TAG_NORMAL = 2
-#dbg_file = open("dbg.txt", "w")
+
 
 def topLevel():
-	#dbg_file = open("dbg.txt", "w")
+	"""
+	reads an html file into a buffer, parses it to cleanView 
+	"""
 	outBuf = {}
 	outBuf["txt"] = ""
 	buf = readBuffer()
-	
 	rootStart = handlePreRoot(buf, outBuf)
 	content, endPos, tagCode = getTagContent(buf, rootStart)
-	
-	
-	
-	#processContent(content, 0)
-	#print "html:"
 	outBuf["txt"] += "\n" + "html:"
 	processContent(content, 1, outBuf)
 	return outBuf["txt"]
 	
-	#dbg_file.close()
-#handles the content of the CONTENT element, return position of HTML element opening <
+	
 def handlePreRoot(buf, outBuf):
+	"""
+	handles the part above the html tag, that is, the doctype part
+	buf -- raw html
+	outbuf -- a buffer on which to write the output
+	"""
 	htmlPos = buf.find("<html", 0)
 	contentInfoIndex = buf.find("<!DOCTYPE", 0)
 	if contentInfoIndex == -1:
 		return htmlPos
 	contentStartPos = contentInfoIndex + len("<!DOCTYPE") + 1
 	closingPos = buf.find(">", contentStartPos)
-	#print "!DOCTYPE:"
 	outBuf["txt"] += "\n" + "!DOCTYPE:"
-	#print (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
-	#outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos]).expandtabs(TAB_WIDTH)
 	outBuf["txt"] += "\n" + (tab + buf[contentStartPos : closingPos])
 	return htmlPos
 
@@ -58,75 +48,71 @@ def handlePreRoot(buf, outBuf):
 
 
 def processContent(content, indentInTabs, outBuf):
-
-	
+	"""
+	interprets given raw html sub tree into cleanView subtree
+	an html sub tree for that matter is html contined between 2 matching tags
+	content - raw html
+	indentInTabs - the 
+	outBuf - a buffer on which to wirte the interpreted output
+	"""
 	if not content:
 		return
-	
 	i = 0
 	while i < len(content):
 		strContent = {}
+		#read content in between tag elements and process it 
 		nextTagPos = nextStargTag(content, i, strContent)
-		
-		
 		if strContent["txt"]:
-			printSimpleContent (indentInTabs, strContent, outBuf)
-		
-		
-		#if all inner complex elments processed (also true if content was just primitives)
+			processSimpleContent (indentInTabs, strContent, outBuf)
+		#when all inner complex elments processed (also true if content was just primitives)
 		if nextTagPos == -1:
 			return
-		
+		#if the current element within content  is a comment 
 		if itsAComment(content, nextTagPos):
 			commentBlockLen = handleComment(content, indentInTabs, nextTagPos, outBuf)
-			i = i + commentBlockLen
+			i = i + commentBlockLen	
 		#else, it's a normal tag 
 		else:
-			#print tag
+			#output tag
 			tag = readTag(content, nextTagPos)
-			indent = ""
-			for k in range (0,indentInTabs):
-				indent += tab
-			#print (indent + tag + ":").expandtabs(TAB_WIDTH)
-			#outBuf["txt"] += "\n" + (indent + tag + ":").expandtabs(TAB_WIDTH)
+			indent = bldInd(indentInTabs)	
 			outBuf["txt"] += "\n" + (indent + tag + ":")
-			
-			#print tag args
+			#output tag args
 			args, tagWargsLen = readTagHeader (content, nextTagPos)
 			printArgsMap(indentInTabs + 1, args, outBuf)
-			
-			#process tag nested content
+			#process tag nested content with a recursive invocation 
 			tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
 			if tagCode == CLOSING_TAG_NORMAL:
 				processContent(tagContent, indentInTabs + 1, outBuf)
-			
 			i = endTagPos 
 			
 			#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
-			
 			if tagCode == CLOSING_TAG_NONE:
 				i = i + tagWargsLen + len(">")	
 			else:
 				i = i + len("/>") + len(tag) + len(">")
 
 
-#parses and outputs a comment, returns the complet size of the block including tags
+
 def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
+	"""
+	parses and outputs a comment, returns the complet size of the block including tags
+	buf - raw html
+	indendtInTabs - base indentation depth of subtree
+	outBuf -output buffer
+	
+	how:baiscaly the closing comment tag is searched, and the content is added to output buffer interpreted to cleanView
+	"""
 	ind = bldInd(indentInTabs)
 	pos = startOfOPenTagPos
 	output = ""
 	startCont = pos + len("<!--")
-	#startCont = pos + len("!--")
 	endCont = buf.find("-->")
 	content = buf[startCont:endCont]
 	contentLines = content.split('\n')
 	output += "\n" + ind + "#:"
 	for line in contentLines:
 		output +=  "\n" + ind + tab + line
-	
-	#output +=  "\n" + ind + tab + content
-	#print output.expandtabs(TAB_WIDTH)
-	#outBuf["txt"] += output.expandtabs(TAB_WIDTH)
 	outBuf["txt"] += output
 	
 	return endCont + len("-->") - startOfOPenTagPos
@@ -134,12 +120,17 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	
 
 def bldInd(numberOfTabs):
+	"""builds indentation string out of tab chars"""
 	out = ""
 	for i in range(0,numberOfTabs):
 		out += tab
 	return out
 
 def itsAComment(buf, nextTagPos):
+	"""
+	buf - raw html
+	nextTagPos - position of suspected tag begining 
+	"""
 	#for it to be a comment, it must at least the length of openneing and closing tags away from end of buf
 	if len(buf) < nextTagPos + 6:
 		return False
@@ -147,35 +138,14 @@ def itsAComment(buf, nextTagPos):
 	openTagMatch = buf[nextTagPos + 1 : nextTagPos + 4] == "!--"
 	return openTagMatch
 
+
+
 def readBuffer():
-	#buffer = "Read buffer:\n"
 	buf = ""
 	buf += open(filePath, 'rU').read()
 	return buf
 
-"""
-def printSimpleContent (indentDepth, simpleConent, outBuf):
-	
-	#if string is only non alphanumeric chars - abort
-	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
-	if m is None:
-		return
-	
-	ind = ""
-	line = simpleConent["txt"]
-	line = line.strip('\n')
-	line = line.strip('\t')
-	line = line.strip("\r\n")
-	line = line.strip('\r')
-	#\r\n
-	for i in range (0, indentDepth):
-		ind += tab
-	if line:	
-		print (ind + line).expandtabs(TAB_WIDTH)
-		#outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
-		outBuf["txt"] += "\n" + (ind + line)
-"""		
-def printSimpleContent (indentDepth, simpleConent, outBuf):
+def processSimpleContent (indentDepth, simpleConent, outBuf):
 	
 	#if string is only non alphanumeric chars - abort
 	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
