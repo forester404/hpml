@@ -1,3 +1,9 @@
+"""
+an interperter from html to cleanView  (python styled synthex)
+"""
+#TODO - add reference to cleanView reference 
+
+
 import re
 import utils
 
@@ -51,8 +57,8 @@ def processContent(content, indentInTabs, outBuf):
 		#read content in between tag elements and process it 
 		nextTagPos = nextStargTag(content, i, strContent)
 		if strContent["txt"]:
-			processSimpleContent (indentInTabs, strContent, outBuf)
-		#when all inner complex elments processed (also true if content was just primitives)
+			processSimpleContent (indentInTabs, strContent["txt"], outBuf)
+		#when all inner complex elments processed (also true if content was just primitives) - processing done
 		if nextTagPos == -1:
 			return
 		#if the current element within content  is a comment 
@@ -67,7 +73,7 @@ def processContent(content, indentInTabs, outBuf):
 			outBuf["txt"] += "\n" + (indent + tag + ":")
 			#output tag args
 			args, tagWargsLen = readTagHeader (content, nextTagPos)
-			printArgsMap(indentInTabs + 1, args, outBuf)
+			outputArgsMap(indentInTabs + 1, args, outBuf)
 			#process tag nested content with a recursive invocation 
 			tagContent, endTagPos, tagCode = getTagContent(content, nextTagPos)
 			if tagCode == CLOSING_TAG_NORMAL:
@@ -124,37 +130,28 @@ def itsAComment(buf, nextTagPos):
 
 
 
-def processSimpleContent (indentDepth, simpleConent, outBuf):
+def processSimpleContent (indentDepth, rawSimpleContent, outBuf):
 	"""
 	interpret and output raw html that is leaf, that is not containing tag elements
 	indentDepth -- depth of subtree indentation
-	simpleConent -- object containing raw html input 
+	rawSimpleContent -- the raw html input 
 	outBuf -- buffer to write output on 
 	"""
 	#if string is only non alphanumeric chars - abort
-	m = re.search('[a-zA-Z0-9_]', simpleConent["txt"])
+	m = re.search('[a-zA-Z0-9_]', rawSimpleContent)
 	if m is None:
 		return
-	
-	ind = ""
-	buf = simpleConent["txt"]
-	#line = line.strip('\n')
+		
+	buf = rawSimpleContent
 	buf = buf.strip('\t')
-	#line = line.strip("\r\n")
 	buf = buf.strip('\r')
-	#\r\n
-	
-	for i in range (0, indentDepth):
-		ind += utils.TAB
+	ind = utils.bldInd(indentDepth)
 	lines = buf.split("\n")
-	#print "\n" + ind + "leaf:"
 	outBuf["txt"] += "\n" + ind + "leaf:"
 	for line in lines:
 		if line:
 			line = line.strip()
 			out = "\n" + ind + utils.TAB + line
-			#print (out).expandtabs(TAB_WIDTH)
-			#outBuf["txt"] += "\n" + (ind + line).expandtabs(TAB_WIDTH)
 			outBuf["txt"] += out
 	
 	
@@ -173,19 +170,26 @@ def nextStargTag(buffer, index, strContent):
 	return -1
 	
 	
-#returnn the index to beginning of closing tag, given start index, the index of the opening "<" in openening tag
-def closingTagIndex(buffer, startIndex):
+def closingTagIndex(buf, startIndex):
+	"""
+	locates the matching closing tag
+	buf -- raw html
+	startIndex -- position of openning tag for which closing tag is searched 
+	
+	returns found position or -1 if not found 
+	
+	"""
+	
 	nextTagStart = startIndex
 	tagStack = []
-	tag = readTag(buffer, startIndex)
-	#endTag = "</" + tag + ">"
+	tag = readTag(buf, startIndex)
 	
-	while nextTagStart < len(buffer) and nextTagStart != -1:
-		nextTagStart = buffer.find(tag, nextTagStart + 1)
+	while nextTagStart < len(buf) and nextTagStart != -1:
+		nextTagStart = buf.find(tag, nextTagStart + 1)
 		#closing tag - remove the last openneing tag, if the stack is then empty we found we were looking for 
 		if nextTagStart == -1:
 			return -1
-		ttype = tagType(buffer, nextTagStart) 
+		ttype = tagType(buf, nextTagStart) 
 		if ttype == TAG_CLOSING:
 			if len(tagStack) == 1:
 				#found it
@@ -198,25 +202,31 @@ def closingTagIndex(buffer, startIndex):
 				tagStack.append(tag)
 		
 	return -1
-	#raise ValueError("buffer is not valid html") 
+
 	
-#given a location of starting of a tab(1st char), returns true iff the tag is closing one 
-#the location is assumed to be in a tag, either openning or closing one 
+
 def tagType(buffer, index):
+	"""
+	tells weather given html tag is opening  or closing tag
+	buffer--raw html
+	index--position of the first char in tag name
+	""" 
 	if index < 1:
 		raise ValueError("tagType, index must have value > 0")
-	#if buffer[index - 1] == "/":
 	if buffer[index - 2 : index ] == "</":
 		return TAG_CLOSING
 	if buffer[index - 1] == "<":
 		return TAG_OPENNING
 	return TAG_NONE
-	#raise ValueError("input is not first char of openning or closing tag for {}".format(buffer[index - 1:index])) 
+	
 
 
 
-#start index is the index of the opening "<"
 def readTag(buffer, startingIndex):
+	"""
+	extracts the tag name from given raw html tag 
+	start index --the index of the opening "<"
+	"""
 	tag = ""
 	i = startingIndex + 1 
 	while buffer[i] != ">" and buffer[i] != " ":
@@ -224,11 +234,15 @@ def readTag(buffer, startingIndex):
 		i = i + 1
 	return tag
 
-#start index is the index of the opening "<"
-#ret atrb - map of attrb an vals
-#ret totLen = total length of entire openning tag and args, not 
-#including brakets 
+
 def readTagHeader (buffer, startingIndex):
+	"""
+	parses attributes of given raw html
+	buffer -- raw html
+	startingIndex -- pointer to beginning of tag
+	
+	returns a map of attributes and values, and the total length of the raw html tag
+	"""
 	atrbs  = {}
 	totLen = 0
 	i = startingIndex + 1 
@@ -251,9 +265,16 @@ def readTagHeader (buffer, startingIndex):
 		atrbs[key] = val
 	return atrbs, totLen + 1
 
-#given the openning < of a tag, return all content contained in that tag, excluding the opening and closing tags themselves
-#2nd return value is the position of the end of content (last char)
+
+
 def getTagContent(buf, index):
+	"""
+	extracts content from raw thml - that is, the nested raw html within the tags
+	buf -- raw html
+	index -- position of openning tag, whose nested content it to be extracted 
+	
+	returns the extracted nested content 
+	"""
 	rangeHigh = closingTagIndex(buf, index)
 	#no closing tag, single tag, no content between tags
 	if rangeHigh == -1:
@@ -269,14 +290,16 @@ def getTagContent(buf, index):
 
 #assuming the root tag opens at index 0 
 
-def printArgsMap(indentDepth, args, outBuf):
-	indBlck = ""
-	for i in range(0, indentDepth):
-			indBlck += utils.TAB
+def outputArgsMap(indentDepth, args, outBuf):
+	"""
+	translates properties map to cleanView and appends to output
+	indentDepth -- indendt depth
+	args -- a map of properties and vaues
+	outBuf -- buffer to append output to
 	
+	"""
+	indBlck = utils.bldInd(indentDepth)
 	for attr, value in args.iteritems():
-		#print (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
-		#outBuf["txt"] += "\n" + (indBlck + attr + "=" + value).expandtabs(TAB_WIDTH)
 		outBuf["txt"] += "\n" + (indBlck + attr + "=" + value)
 		
 
@@ -318,7 +341,7 @@ def testPrintArgs():
 	args={}
 	args["img"] = "http blah blavh blag"
 	args["keyn"] = "valn"
-	printArgsMap(2, args)
+	outputArgsMap(2, args)
 	
 def testReadArgsLen():
 	buf = " <body bgcolor=white>"
