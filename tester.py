@@ -25,9 +25,6 @@ def topLevel(filePath):
 
 
 
-
-
-
 def testBackAndForth():
     buf = utils.readBuffer(TEST_INPUT_FILE_HTML)
     parsed = phtml.translateRawHtml(buf)
@@ -40,7 +37,7 @@ def testBackAndForth():
     breakpoint = 9
     
 def translateXml():
-    buf = utils.readBuffer(TEST_INPUT_FILE_HTML)
+    buf = utils.readBuffer(TEST_INPUT_FILE_REST)
     parsed = phtml.translateXML(buf)
     
 def testCountTabs():
@@ -59,6 +56,12 @@ def testRecongnizeIdentBlock():
     block = "\ttag:\ntcont"
     print goBack.isBlockContainingInnerIndent(block)
     
+def testSplitHeader():
+    buf = '<user email="paul@peej.co.uk" name="Paul James" href="http://www.peej.co.uk/">'
+    args = phtml.splitHeader(buf, 0)
+    print args
 
 testBackAndForth()
 #translateXml()
+
+#testSplitHeader()

@@ -7,6 +7,7 @@ an interperter from html to cleanView  (python styled synthex)
 import re
 import utils
 
+
 TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
@@ -258,6 +259,38 @@ def readTag(buffer, startingIndex):
 	return tag
 
 
+def readTagHeaderOld (buffer, startingIndex):
+	"""
+	parses attributes of given raw html
+	buffer -- raw html
+	startingIndex -- pointer to beginning of tag
+	
+	returns a map of attributes and values, and the total length of the raw html tag
+	"""
+	atrbs  = {}
+	totLen = 0
+	i = startingIndex + 1 
+	fieldsStr = ""
+	while buffer[i] != ">":
+		fieldsStr += buffer[i]
+		i = i + 1 
+		totLen = totLen + 1
+	fieldsStrss = fieldsStr.split(" ")
+	#drop the tag itself
+	fieldsStrss.pop(0)
+	for field in fieldsStrss:
+		keyVal = field.split("=")
+		key = keyVal[0]
+		#value is optional in html
+		if len(keyVal) > 1 :
+			val = keyVal[1]
+		else:
+			val = None 
+		atrbs[key] = val
+	return atrbs, totLen + 1
+
+
+
 def readTagHeader (buffer, startingIndex):
 	"""
 	parses attributes of given raw html
@@ -289,6 +322,66 @@ def readTagHeader (buffer, startingIndex):
 	return atrbs, totLen + 1
 
 
+def splitHeader(buf, pos):
+	i = pos + 1 
+	props = {}
+	while i < len(buf) and buf[i] != ">":
+		key, consumed = readPropKey(buf, i)
+		i = i + consumed 
+		val, consumed = readPropVal(buf, i)
+		i = i + consumed 
+		props[key] = val 
+	return props 
+
+#returns the property and length		
+def readPropKey(buf, pos):
+	i = pos
+	out = ""
+	#skip open char and spaces
+	while i < len(buf) and buf[i] == " " and not buf[i] == ">":
+		i = i + 1
+	#no further key 
+	if buf[i] == ">":
+		return None
+	#now read actual word - it ends either with assignment or whitespace 	
+	while buf[i] != " " and buf[i] != "=" and not buf[i] == ">" and i < len(buf):
+		out += buf[i]
+		i = i + 1
+	return out, i - pos 
+
+#pos should point at anywhere between next char after the key and the "=" if there is one
+#returns value (if exists) and length consumed. the consumed length is valid if no value found, 
+#because it does not penetrate nex key 
+def readPropVal(buf, pos):
+	i = pos
+	#consume whitespaces
+	while i < len(buf) and buf[i] == " " and not buf[i] == ">":
+		i = i + 1
+	#no assignment, hit the next prop key 	
+	if buf[i] != "=":
+		#return None, i -  pos
+		return None, 0
+	#cosume white spaces pass assignment
+	i = i + 1
+	while buf[i] == " ":
+		i = i + 1
+	#prop value may be either be or not be within qoutues 
+	val = ""
+	#no quoutes 
+	if buf[i] != '"' and  buf[i] != "'" :
+		while buf[i] != " " and buf[i] != ">":
+			i = i + 1 
+			val += buf[i]
+		return val, i - pos
+	#with quotes
+	quoteChar = buf[i]
+	i = i + 1
+	while  buf[i]!= quoteChar:
+		val += buf[i]
+		i = i + 1
+		
+	return val, i - pos
+	
 
 def getTagContent(buf, index):
 	"""
