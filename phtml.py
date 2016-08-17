@@ -328,6 +328,8 @@ def splitHeader(buf, pos):
 	while i < len(buf) and buf[i] != ">":
 		key, consumed = readPropKey(buf, i)
 		i = i + consumed 
+		if not key:
+			continue
 		val, consumed = readPropVal(buf, i)
 		i = i + consumed 
 		props[key] = val 
@@ -342,7 +344,7 @@ def readPropKey(buf, pos):
 		i = i + 1
 	#no further key 
 	if buf[i] == ">":
-		return None
+		return None, i - pos
 	#now read actual word - it ends either with assignment or whitespace 	
 	while buf[i] != " " and buf[i] != "=" and not buf[i] == ">" and i < len(buf):
 		out += buf[i]
@@ -370,8 +372,9 @@ def readPropVal(buf, pos):
 	#no quoutes 
 	if buf[i] != '"' and  buf[i] != "'" :
 		while buf[i] != " " and buf[i] != ">":
-			i = i + 1 
 			val += buf[i]
+			i = i + 1 
+			
 		return val, i - pos
 	#with quotes
 	quoteChar = buf[i]
@@ -380,7 +383,7 @@ def readPropVal(buf, pos):
 		val += buf[i]
 		i = i + 1
 		
-	return val, i - pos
+	return val, i - pos + 1
 	
 
 def getTagContent(buf, index):

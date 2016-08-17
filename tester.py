@@ -57,7 +57,8 @@ def testRecongnizeIdentBlock():
     print goBack.isBlockContainingInnerIndent(block)
     
 def testSplitHeader():
-    buf = '<user email="paul@peej.co.uk" name="Paul James" href="http://www.peej.co.uk/">'
+    #buf = '<user email="paul@peej.co.uk" name="Paul James" href="http://www.peej.co.uk/">'
+    buf = '<user email="paul@peej.co.uk" noQProp=noQVal   name= "Paul James" href="http://www.peej.co.uk/" >'
     args = phtml.splitHeader(buf, 0)
     print args
 
