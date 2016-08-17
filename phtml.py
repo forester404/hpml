@@ -18,6 +18,29 @@ CLOSING_TAG_NONE = 1
 CLOSING_TAG_NORMAL = 2
 
 
+def translateRawHtml(rawHtml):
+	"""
+	translates a buffer of raw html to cleanView synthax
+	"""
+	outBuf = {}
+	outBuf["txt"] = ""
+	buf = rawHtml
+	rootStart = handlePreRoot(buf, outBuf)
+	content, endPos, tagCode = getTagContent(buf, rootStart)
+	outBuf["txt"] += "\n" + "html:"
+	processContent(content, 1, outBuf)
+	return outBuf["txt"]
+
+
+def translateXML(rawXml):
+	outBuf = {}
+	outBuf["txt"] = ""
+	buf = rawXml
+	#rootStart = handlePreRoot(buf, outBuf)
+	#content, endPos, tagCode = getTagContent(buf, rootStart)
+	#outBuf["txt"] += "\n" + "html:"
+	processContent(buf, 1, outBuf)
+	return outBuf["txt"]
 
 	
 	
