@@ -144,7 +144,8 @@ def builHTMLTags(tag, propsMap):
         val = propsMap[prop]
         openTag += " " + prop 
         if val:
-            openTag += "=" + val
+            #openTag += "=" + val
+            openTag += '="' + val + '"'
     openTag += ">"
     
     closeTag = "</" + tag+ ">"

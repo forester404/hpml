@@ -39,6 +39,7 @@ def testBackAndForth():
 def translateXml():
     buf = utils.readBuffer(TEST_INPUT_FILE_REST)
     parsed = phtml.translateXML(buf)
+    print parsed
     
 def testCountTabs():
     line = "\n\n\t\t\tand that is it"
