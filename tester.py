@@ -3,11 +3,17 @@ import phtml
 import utils
 
 
-TEST_INPUT_FILE_REST = "restapi1.xml"
+#TEST_INPUT_FILE_REST = "test_input/restapi1.xml"
 
-#TEST_INPUT_FILE_HTML = "ml5smpl_org.html"
+#TEST_INPUT_FILE_REST = "test_input/xml_simple_1.xml" 
 
-TEST_INPUT_FILE_HTML = "ml5smpl_orphan_attr.html"
+TEST_INPUT_FILE_REST = "test_input/soap2.xml" 
+
+#TEST_INPUT_FILE_HTML = "test_input/ml5smpl_org.html"
+
+TEST_INPUT_FILE_HTML = "test_input/ml5smpl_orphan_attr.html"
+
+
 
 """
 
@@ -40,6 +46,10 @@ def translateXml():
     buf = utils.readBuffer(TEST_INPUT_FILE_REST)
     parsed = phtml.translateXML(buf)
     print parsed
+    print "-----------and back to:-------------------"
+    unParsed = goBack.processBuf(parsed, 0)
+    out = unParsed[0]
+    print out.expandtabs(5)
     
 def testCountTabs():
     line = "\n\n\t\t\tand that is it"
@@ -62,7 +72,18 @@ def testSplitHeader():
     buf = '<user email="paul@peej.co.uk" noQProp=noQVal  noValFalg name= "Paul James" href="http://www.peej.co.uk/" >'
     args = phtml.readTagHeader(buf, 0)
     print args
+    
+    
+def  testSplitHeadSoap():
+    buf = """<soap11:Envelope  
+  xmlns="urn:GoogleSearch" 
+  xmlns:google="urn:GoogleSearch"
+  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/">"""
+    args = phtml.readTagHeader(buf, 0)
+    print args
 
 testBackAndForth()
 #translateXml()
 #testSplitHeader()
+#testSplitHeadSoap()
