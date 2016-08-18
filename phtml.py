@@ -259,6 +259,10 @@ def readTag(buffer, startingIndex):
 	return tag
 
 
+
+
+
+
 def readTagHeaderOld (buffer, startingIndex):
 	"""
 	parses attributes of given raw html
@@ -290,41 +294,10 @@ def readTagHeaderOld (buffer, startingIndex):
 	return atrbs, totLen + 1
 
 
-
-def readTagHeader (buffer, startingIndex):
-	"""
-	parses attributes of given raw html
-	buffer -- raw html
-	startingIndex -- pointer to beginning of tag
-	
-	returns a map of attributes and values, and the total length of the raw html tag
-	"""
-	atrbs  = {}
-	totLen = 0
-	i = startingIndex + 1 
-	fieldsStr = ""
-	while buffer[i] != ">":
-		fieldsStr += buffer[i]
-		i = i + 1 
-		totLen = totLen + 1
-	fieldsStrss = fieldsStr.split(" ")
-	#drop the tag itself
-	fieldsStrss.pop(0)
-	for field in fieldsStrss:
-		keyVal = field.split("=")
-		key = keyVal[0]
-		#value is optional in html
-		if len(keyVal) > 1 :
-			val = keyVal[1]
-		else:
-			val = None 
-		atrbs[key] = val
-	return atrbs, totLen + 1
-
-
-def splitHeader(buf, pos):
+def readTagHeader(buf, pos):
 	i = pos + 1 
 	props = {}
+	propNum = 0
 	while i < len(buf) and buf[i] != ">":
 		key, consumed = readPropKey(buf, i)
 		i = i + consumed 
@@ -332,8 +305,12 @@ def splitHeader(buf, pos):
 			continue
 		val, consumed = readPropVal(buf, i)
 		i = i + consumed 
-		props[key] = val 
-	return props 
+		if propNum > 0:
+			props[key] = val 
+		propNum = propNum + 1
+		
+	totLen = i - pos + 1 
+	return props, totLen
 
 #returns the property and length		
 def readPropKey(buf, pos):
