@@ -5,9 +5,9 @@ import utils
 
 TEST_INPUT_FILE_REST = "restapi1.xml"
 
-TEST_INPUT_FILE_HTML = "ml5smpl_org.html"
+#TEST_INPUT_FILE_HTML = "ml5smpl_org.html"
 
-
+TEST_INPUT_FILE_HTML = "ml5smpl_orphan_attr.html"
 
 """
 
@@ -59,10 +59,9 @@ def testRecongnizeIdentBlock():
 def testSplitHeader():
     #buf = '<user email="paul@peej.co.uk" name="Paul James" href="http://www.peej.co.uk/">'
     buf = '<user email="paul@peej.co.uk" noQProp=noQVal  noValFalg name= "Paul James" href="http://www.peej.co.uk/" >'
-    args = phtml.splitHeader(buf, 0)
+    args = phtml.readTagHeader(buf, 0)
     print args
 
 testBackAndForth()
 #translateXml()
-
 #testSplitHeader()

@@ -396,7 +396,12 @@ def outputArgsMap(indentDepth, args, outBuf):
 	"""
 	indBlck = utils.bldInd(indentDepth)
 	for attr, value in args.iteritems():
-		outBuf["txt"] += "\n" + (indBlck + attr + "=" + value)
+		if not value:
+			valStr = ""
+		else:
+			valStr = str(value)
+		#outBuf["txt"] += "\n" + (indBlck + attr + "=" + value)
+		outBuf["txt"] += "\n" + (indBlck + attr + "=" + valStr)
 		
 
 #-------------------------------------------TESTS-----------------------------------------
