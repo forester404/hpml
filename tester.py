@@ -82,6 +82,11 @@ def  testSplitHeadSoap():
   xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/">"""
     args = phtml.readTagHeader(buf, 0)
     print args
+    
+    
+def testReadBlock():
+    buf = "\n\ttag1: \n \t\ttag1content  \n \t\ttag2: \n \t\t\ttag2content \n \ttag1sibling"  
+    print blockEnd(1 , buf, 12)
 
 testBackAndForth()
 #translateXml()

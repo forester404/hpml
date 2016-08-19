@@ -1,20 +1,28 @@
 import re
 import utils
 
-#tab = "\t"
+"""
+an translator for cleanView to html
+"""
 
-BLOCK_TYPE_ARG_VAL = 1
-BLOCK_TYPE_TAG_CONT = 2
+#property-value pair
+BLOCK_TYPE_PROP_VAL = 1
+#tag-content pair
+BLOCK_TYPE_TAG_CONTENT = 2
+#leaf / primitve content (a string)
 BLOCK_TYPE_LEAF = 3
 BLOCK_TYPE_COMMENT = 4 
+#representation of html contnet header
 BLOCK_TYPE_DOCTYPE = 5
 
 
-#given depth of indentitation, function searches for next tag with similar indentitation, that is, sibling tag
-#returns length of block for starting start pos
+
 def blockEnd(indentDepthTabs, buf, tagStartPos):
-    #a regexp for sequence of tabs followed alphnumeric char
-    #reg = '\\t{' + str(indentDepthTabs) + '}[a-zA-Z0-9]'
+    """"
+    given depth of indentitation, function searches for next tag with similar indentitation, that is, sibling tag
+    returns length of block for starting start pos or -1 if not found
+    """
+    #a regexp for sequence of tabs in proper depth, followed alphnumeric char
     reg = '\\n\\t{' + str(indentDepthTabs) + '}[a-zA-Z0-9#]'
 
     pos = re.search(reg, buf[tagStartPos:-1])
@@ -24,31 +32,35 @@ def blockEnd(indentDepthTabs, buf, tagStartPos):
         return -1
     
 
-        
-        
-def depth(line):
-    pos = 0
     
+
+
+def translageBacktoHtml(buf):
+    """
+    translates cleanView back to html
     
-def testReadBlock():
-    buf = "\n\ttag1: \n \t\ttag1content  \n \t\ttag2: \n \t\t\ttag2content \n \ttag1sibling"  
-    print blockEnd(1 , buf, 12)
+    """
+    processBuf(buf, 0)
 
-
-#buf is a complete subtree of a parsed structure, the block from "content start" until "content end", 
-#including the indentation before content start - this is critical, because a block is also seen 
-#as the content between 2 equaly long indendations 
-# tag:
-#     content start....
-#     atr1 = val1
-#     innerTag:
-#           innerCtonet
-#
-#
-
-#     content end
 
 def processBuf(buf, baseIndDepth):
+    """ 
+    translates a subtree of cleanView to html
+    
+    buf is a complete subtree of a parsed structure, the block from "content start" until "content end", 
+    including the indentation before content start - this is critical, because a block is also seen 
+    as the content between 2 equaly long indentitation blocks 
+     tag:
+        (content start....)
+         propp1 = val1
+        innerTag:
+          innerCtonet
+
+
+
+        (...content end)
+    """    
+    
     pos = 0
     htmlOut = ""
     propsMap = {}
@@ -61,16 +73,16 @@ def processBuf(buf, baseIndDepth):
             block = buf[pos:]
             pos = len(buf)
         blockType = extractBlockType(block)
-        if blockType == BLOCK_TYPE_ARG_VAL:
+        if blockType == BLOCK_TYPE_PROP_VAL:
             key, val = extractArgVal(block)
             #addArgVal(baseTagBuf, key, val)
             propsMap[key] = val
             continue
-        if blockType == BLOCK_TYPE_TAG_CONT or blockType == BLOCK_TYPE_DOCTYPE:
+        if blockType == BLOCK_TYPE_TAG_CONTENT or blockType == BLOCK_TYPE_DOCTYPE:
             tag, bufChild = extractTagContent(block)
             contentasHTML, deepArgsMap = processBuf(bufChild, baseIndDepth + 1)
             openTagHtml, closeTagHtml = builHTMLTags(tag, deepArgsMap)
-            indent = indentStr(baseIndDepth)
+            indent = utils.bldInd(baseIndDepth)
             htmlOut += "\n" + indent + openTagHtml
             htmlOut += indent + utils.TAB + contentasHTML
             #htmlOut += "\n" + indent + closeTagHtml
@@ -110,7 +122,7 @@ def extractSimpleContent(block):
 def toHtmlLeaf(block, depth):
     rawContent =  extractSimpleContent(block)
     out = ""
-    indent = indentStr(depth)
+    indent = utils.bldInd(depth)
     lines = rawContent.split("\n")
     for line in lines :
         if line:
@@ -120,7 +132,7 @@ def toHtmlLeaf(block, depth):
  
 def toHtmlComment(indentDepth, block): 
     comment = extractSimpleContent(block)
-    indent = indentStr(indentDepth)
+    indent = utils.bldInd(indentDepth)
     out = ""
     out += "\n" + indent + "<!--" 
     #out += "\n" + indent + tab + comment
@@ -130,13 +142,14 @@ def toHtmlComment(indentDepth, block):
             out += "\n" + indent + utils.TAB + line 
     out += "\n" + indent +  "-->"   
     return out   
-        
+ 
+"""        
 def  indentStr(depth):
     out = ""
     for i in range (0,depth):
         out += utils.TAB
     return out
-
+"""
 
 def builHTMLTags(tag, propsMap):
     #openning tag
@@ -170,10 +183,10 @@ def extractBlockTypeOld(block):
     #block is atr=val block
     splited = block.split("=")
     if len(splited) == 2:
-        return BLOCK_TYPE_ARG_VAL
+        return BLOCK_TYPE_PROP_VAL
     # block is atr with no val
     if block.find(":") == -1 and block.find("=") == -1:
-        return BLOCK_TYPE_ARG_VAL
+        return BLOCK_TYPE_PROP_VAL
     
     
     pos = block.find(":")
@@ -185,14 +198,14 @@ def extractBlockTypeOld(block):
             return BLOCK_TYPE_LEAF
         if tagName == "#":
             return BLOCK_TYPE_COMMENT
-        return BLOCK_TYPE_TAG_CONT
+        return BLOCK_TYPE_TAG_CONTENT
     else:
-        return BLOCK_TYPE_ARG_VAL
+        return BLOCK_TYPE_PROP_VAL
     
 
 def extractBlockType(block):
     if not isBlockContainingInnerIndent(block):
-        return BLOCK_TYPE_ARG_VAL
+        return BLOCK_TYPE_PROP_VAL
     #a block with indentation 
     pos = block.find(":")
     if pos > 0:
@@ -205,7 +218,7 @@ def extractBlockType(block):
             return BLOCK_TYPE_COMMENT
         if tagName == "!DOCTYPE":
             return BLOCK_TYPE_DOCTYPE
-        return BLOCK_TYPE_TAG_CONT
+        return BLOCK_TYPE_TAG_CONTENT
     raise Exception("could not intrepret block:" + block)
 
     

@@ -1,5 +1,5 @@
 """
-an interperter from html to cleanView  (python styled synthex)
+an translator from html to cleanView  (python styled synthex)
 """
 #TODO - add reference to cleanView reference 
 
