@@ -9,9 +9,9 @@ import utils
 
 TEST_INPUT_FILE_REST = "test_input/soap2.xml" 
 
-#TEST_INPUT_FILE_HTML = "test_input/ml5smpl_org.html"
+TEST_INPUT_FILE_HTML = "test_input/ml5smpl_org.html"
 
-TEST_INPUT_FILE_HTML = "test_input/ml5smpl_orphan_attr.html"
+#TEST_INPUT_FILE_HTML = "test_input/ml5smpl_orphan_attr.html"
 
 
 

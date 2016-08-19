@@ -1,6 +1,7 @@
 import re
+import utils
 
-tab = "\t"
+#tab = "\t"
 
 BLOCK_TYPE_ARG_VAL = 1
 BLOCK_TYPE_TAG_CONT = 2
@@ -71,7 +72,7 @@ def processBuf(buf, baseIndDepth):
             openTagHtml, closeTagHtml = builHTMLTags(tag, deepArgsMap)
             indent = indentStr(baseIndDepth)
             htmlOut += "\n" + indent + openTagHtml
-            htmlOut += indent + tab + contentasHTML
+            htmlOut += indent + utils.TAB + contentasHTML
             #htmlOut += "\n" + indent + closeTagHtml
             if blockType != BLOCK_TYPE_DOCTYPE:
                 htmlOut += "\n" + indent + closeTagHtml
@@ -126,14 +127,14 @@ def toHtmlComment(indentDepth, block):
     lines = comment.split("\n")
     for line in lines:
         if line:
-            out += "\n" + indent + tab + line 
+            out += "\n" + indent + utils.TAB + line 
     out += "\n" + indent +  "-->"   
     return out   
         
 def  indentStr(depth):
     out = ""
     for i in range (0,depth):
-        out += tab
+        out += utils.TAB
     return out
 
 
@@ -219,7 +220,8 @@ def  extractArgVal(block):
 
 #the tag is supposed to be the first line, the content the rest of the block
 def extractTagContent(block):
-    colPos = block.find(":")
+    #colPos = block.find(":")
+    colPos = block.find(":\n")
     return block[0:colPos], block[colPos + 1:]
 
 

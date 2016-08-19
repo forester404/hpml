@@ -8,6 +8,7 @@ import re
 import utils
 
 
+
 TAG_CLOSING = 1
 TAG_OPENNING = 2
 TAG_NONE = 3	
@@ -34,12 +35,13 @@ def translateRawHtml(rawHtml):
 
 
 def translateXML(rawXml):
+	"""
+	translates xml to cleanVeiw
+	"""
+	
 	outBuf = {}
 	outBuf["txt"] = ""
 	buf = rawXml
-	#rootStart = handlePreRoot(buf, outBuf)
-	#content, endPos, tagCode = getTagContent(buf, rootStart)
-	#outBuf["txt"] += "\n" + "html:"
 	processContent(buf, 1, outBuf)
 	return outBuf["txt"]
 
@@ -72,30 +74,34 @@ def processContent(content, indentInTabs, outBuf):
 	content - raw html
 	indentInTabs - the 
 	outBuf - a buffer on which to wirte the interpreted output
+	
+	the function itterates over subblocks of the current level- siblings in the html sub tree 
+	each sibling is either a nested tag and its optional a comment, or a primitive content, that is, a simple string
 	"""
 	if not content:
 		return
 	i = 0
 	while i < len(content):
 		strContent = {}
-		#read content in between tag elements and process it 
+		#read content in between tag elements and processes it (between ending of one tag and begining of it sibling)
 		nextTagPos = nextStargTag(content, i, strContent)
 		if strContent["txt"]:
 			processSimpleContent (indentInTabs, strContent["txt"], outBuf)
 		#when all inner complex elments processed (also true if content was just primitives) - processing done
+		#the processing of the primitive contnet is done while looking for the next tab, see above
 		if nextTagPos == -1:
 			return
 		#if the current element within content  is a comment 
 		if itsAComment(content, nextTagPos):
 			commentBlockLen = handleComment(content, indentInTabs, nextTagPos, outBuf)
 			i = i + commentBlockLen	
-		#else, it's a normal tag 
+		#else, it's a normal nested tag
 		else:
 			#output tag
 			tag = readTag(content, nextTagPos)
 			indent = utils.bldInd(indentInTabs)	
 			outBuf["txt"] += "\n" + (indent + tag + ":")
-			#output tag args
+			#output tag properties
 			args, tagWargsLen = readTagHeader (content, nextTagPos)
 			outputArgsMap(indentInTabs + 1, args, outBuf)
 			#process tag nested content with a recursive invocation 
@@ -104,7 +110,7 @@ def processContent(content, indentInTabs, outBuf):
 				processContent(tagContent, indentInTabs + 1, outBuf)
 			i = endTagPos 
 			
-			#if start tag had no matching closing tag, we just #need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
+			#if start tag had no matching closing tag, we just need to consume it. if it had, the pointer would #point at the begining of closing tag, and we need #to consume it
 			if tagCode == CLOSING_TAG_NONE:
 				i = i + tagWargsLen + len(">")	
 			else:
@@ -295,6 +301,10 @@ def readTagHeaderOld (buffer, startingIndex):
 
 
 def readTagHeader(buf, pos):
+	"""
+	parses raw html to a map of properties and values, 
+	return parsed properties and buffer length consumed
+	"""
 	i = pos + 1 
 	props = {}
 	propNum = 0
@@ -314,6 +324,9 @@ def readTagHeader(buf, pos):
 
 #returns the property and length		
 def readPropKey(buf, pos):
+	"""
+	parses property name from raw html, returns propery name and buffer length consumed
+	"""
 	i = pos
 	out = ""
 	#skip open char and spaces
@@ -328,10 +341,22 @@ def readPropKey(buf, pos):
 		i = i + 1
 	return out, i - pos 
 
-#pos should point at anywhere between next char after the key and the "=" if there is one
-#returns value (if exists) and length consumed. the consumed length is valid if no value found, 
-#because it does not penetrate nex key 
+
 def readPropVal(buf, pos):
+	"""
+	parses raw html to property value. returns value and consumed buffer length.  
+	pos is assumed to  point at anywhere between next char after the correspinding 
+	(preceeding)key and the "=" if there is one. a "=" exists iff a value exists. 
+	otherwise None is returned. 
+	returns value (if exists) and length consumed, if  value doesnt exist consumed value 
+	is 0, because the same position should be called with again, searching for the next property 
+	name (for instance <tagNamee perop1="Val1" prop2 prope3="val3">)
+	prop2 has no value, so we will first try to read past prop2, but than find out it has no value, so
+	we will have to try reading it again as a property (not value) this time. see readPropKey()
+	
+	"""
+	
+	
 	i = pos
 	#consume whitespaces
 	while i < len(buf) and buf[i] == " " and not buf[i] == ">":
@@ -384,7 +409,7 @@ def getTagContent(buf, index):
 	return res
 
 
-#assuming the root tag opens at index 0 
+
 
 def outputArgsMap(indentDepth, args, outBuf):
 	"""
