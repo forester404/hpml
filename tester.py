@@ -3,15 +3,15 @@ import phtml
 import utils
 
 
-#TEST_INPUT_FILE_REST = "test_input/restapi1.xml"
 
-#TEST_INPUT_FILE_REST = "test_input/xml_simple_1.xml" 
 
-TEST_INPUT_FILE_REST = "test_input/soap2.xml" 
+TEST_INPUT_FILE_XML_SIMPLE = "test_input/xml_simple_1.xml" 
+
+TEST_INPUT_FILE_SOAP = "test_input/soap2.xml" 
 
 TEST_INPUT_FILE_HTML = "test_input/ml5smpl_org.html"
 
-#TEST_INPUT_FILE_HTML = "test_input/ml5smpl_orphan_attr.html"
+
 
 
 
@@ -28,7 +28,56 @@ def topLevel(filePath):
     phtml.processContent(content, 1, outBuf)
     return outBuf["txt"]
 """
+#-------------------------------------------TESTS-----------------------------------------
+"""    
+def testReadTag():
+    buffer = readBuffer()
+    print(readTag(buffer, 0)).expandtabs(TAB_WIDTH)
+    
 
+def testSimpleStringOps():
+    tag = "tag"
+    print ("</" + tag + ">").expandtabs(TAB_WIDTH)
+    
+def testFindFrom():
+    print ("abxxab".find("abrrr", 3)).expandtabs(TAB_WIDTH)
+    
+    
+
+    
+    
+def testFindEndOfRoot():
+    buffer = readBuffer()
+    closingTagPos = closingTagIndex(buffer, 333)
+    print closingTagPos
+        
+def testGetContent():
+    buffer = readBuffer()
+    content = getTagContent(buffer, 0)
+    print "**content :*****" 
+    print content 
+    
+
+def testReadHeader ():    
+    print readTagHeader ('<a href="hello" key2=val2 disabled>', 0)
+
+    
+def testPrintArgs():
+    args={}
+    args["img"] = "http blah blavh blag"
+    args["keyn"] = "valn"
+    outputArgsMap(2, args)
+    
+def testReadArgsLen():
+    buf = " <body bgcolor=white>"
+    args, len = readTagHeader (buf, 0)
+    print len
+
+def testRe():
+    #m = re.search('(?<=abc)def', 'abcdef')
+    m = re.search('[a-zA-Z0-9_]', '  d  ')
+    print m is None
+    """
 
 
 def testBackAndForth():
@@ -41,7 +90,11 @@ def testBackAndForth():
     print out.expandtabs(5)
     
 def translateXml():
-    buf = utils.readBuffer(TEST_INPUT_FILE_REST)
+    #ok
+    buf = utils.readBuffer(TEST_INPUT_FILE_XML_SIMPLE)
+    
+    #not ok
+    #buf = utils.readBuffer(TEST_INPUT_FILE_SOAP)
     parsed = phtml.translateXML(buf)
     print parsed
     print "-----------and back to:-------------------"
@@ -84,7 +137,7 @@ def  testSplitHeadSoap():
     
 def testReadBlock():
     buf = "\n\ttag1: \n \t\ttag1content  \n \t\ttag2: \n \t\t\ttag2content \n \ttag1sibling"  
-    print blockEnd(1 , buf, 12)
+    print goBack.blockEnd(1 , buf, 12)
 
 testBackAndForth()
 #translateXml()

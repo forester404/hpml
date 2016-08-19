@@ -34,10 +34,14 @@ def translateRawHtml(rawHtml):
 	return outBuf["txt"]
 
 
+
+
 def translateXML(rawXml):
 	"""
 	translates xml to cleanVeiw
+	this is only partial implementation, that is, it would fail on some xml 
 	"""
+	#TODO - complete/fix implementation 
 	
 	outBuf = {}
 	outBuf["txt"] = ""
@@ -429,55 +433,6 @@ def outputArgsMap(indentDepth, args, outBuf):
 		outBuf["txt"] += "\n" + (indBlck + attr + "=" + valStr)
 		
 
-#-------------------------------------------TESTS-----------------------------------------
-"""	
-def testReadTag():
-	buffer = readBuffer()
-	print(readTag(buffer, 0)).expandtabs(TAB_WIDTH)
-	
 
-def testSimpleStringOps():
-	tag = "tag"
-	print ("</" + tag + ">").expandtabs(TAB_WIDTH)
-	
-def testFindFrom():
-	print ("abxxab".find("abrrr", 3)).expandtabs(TAB_WIDTH)
-	
-	
-
-	
-	
-def testFindEndOfRoot():
-	buffer = readBuffer()
-	closingTagPos = closingTagIndex(buffer, 333)
-	print closingTagPos
-		
-def testGetContent():
-	buffer = readBuffer()
-	content = getTagContent(buffer, 0)
-	print "**content :*****" 
-	print content 
-	
-
-def testReadHeader ():	
-	print readTagHeader ('<a href="hello" key2=val2 disabled>', 0)
-
-	
-def testPrintArgs():
-	args={}
-	args["img"] = "http blah blavh blag"
-	args["keyn"] = "valn"
-	outputArgsMap(2, args)
-	
-def testReadArgsLen():
-	buf = " <body bgcolor=white>"
-	args, len = readTagHeader (buf, 0)
-	print len
-
-def testRe():
-	#m = re.search('(?<=abc)def', 'abcdef')
-	m = re.search('[a-zA-Z0-9_]', '  d  ')
-	print m is None
-	"""
 
 
