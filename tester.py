@@ -33,14 +33,12 @@ def topLevel(filePath):
 
 def testBackAndForth():
     buf = utils.readBuffer(TEST_INPUT_FILE_HTML)
-    parsed = phtml.translateRawHtml(buf)
-    #parsed = topLevel(TESTING_INPUT_HTML1)
-    print parsed
+    trx = phtml.translateRawHtml(buf)
+    print trx
     print "-----------and back to:-------------------"
-    unParsed = goBack.processBuf(parsed, 0)
-    out = unParsed[0]
+    unTraxed = goBack.translageBacktoHtml(trx)
+    out = unTraxed
     print out.expandtabs(5)
-    breakpoint = 9
     
 def translateXml():
     buf = utils.readBuffer(TEST_INPUT_FILE_REST)
@@ -53,7 +51,7 @@ def translateXml():
     
 def testCountTabs():
     line = "\n\n\t\t\tand that is it"
-    print goBack.countTagbsAtPrefix(line)   
+    print goBack.countLeadingTags(line)   
     
 def testRecongnizeIdentBlock():
     block = "\ttag:\n\t\tcont"

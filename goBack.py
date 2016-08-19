@@ -40,7 +40,7 @@ def translageBacktoHtml(buf):
     translates cleanView back to html
     
     """
-    processBuf(buf, 0)
+    return processBuf(buf, 0)[0]
 
 
 def processBuf(buf, baseIndDepth):
@@ -59,6 +59,10 @@ def processBuf(buf, baseIndDepth):
 
 
         (...content end)
+        
+    the return values are the reverse tranlslated sub tree, as well as a properties to values map. this is because 
+    in html the properties are at the header, and in cleanVeiw the properties are siblings of the nested content, 
+    so they should be returned for the calling level to be able to include them in its header 
     """    
     
     pos = 0
@@ -74,8 +78,7 @@ def processBuf(buf, baseIndDepth):
             pos = len(buf)
         blockType = extractBlockType(block)
         if blockType == BLOCK_TYPE_PROP_VAL:
-            key, val = extractArgVal(block)
-            #addArgVal(baseTagBuf, key, val)
+            key, val = extractPropVal(block)
             propsMap[key] = val
             continue
         if blockType == BLOCK_TYPE_TAG_CONTENT or blockType == BLOCK_TYPE_DOCTYPE:
@@ -85,7 +88,6 @@ def processBuf(buf, baseIndDepth):
             indent = utils.bldInd(baseIndDepth)
             htmlOut += "\n" + indent + openTagHtml
             htmlOut += indent + utils.TAB + contentasHTML
-            #htmlOut += "\n" + indent + closeTagHtml
             if blockType != BLOCK_TYPE_DOCTYPE:
                 htmlOut += "\n" + indent + closeTagHtml
             continue 
@@ -105,21 +107,23 @@ def processBuf(buf, baseIndDepth):
     return htmlOut, propsMap 
  
  
-#return the raw content of given block - the content at    tag:content 
+ 
 def extractSimpleContent(block):
     """
-    parts = block.split(":")
-    if len(parts) > 1:
-        out = parts[1]
-        return out
-    return None
+    returns the raw content of given block - the content part of   
+    # tag
+    #     :content
     """
     colPos = block.find(":")
     if colPos == -1:
         return None
     return block[colPos + 1:]
 
+
 def toHtmlLeaf(block, depth):
+    """
+    translates simple content to html 
+    """
     rawContent =  extractSimpleContent(block)
     out = ""
     indent = utils.bldInd(depth)
@@ -131,11 +135,13 @@ def toHtmlLeaf(block, depth):
     return out
  
 def toHtmlComment(indentDepth, block): 
+    """
+    translates given comment block to html
+    """
     comment = extractSimpleContent(block)
     indent = utils.bldInd(indentDepth)
     out = ""
     out += "\n" + indent + "<!--" 
-    #out += "\n" + indent + tab + comment
     lines = comment.split("\n")
     for line in lines:
         if line:
@@ -143,15 +149,12 @@ def toHtmlComment(indentDepth, block):
     out += "\n" + indent +  "-->"   
     return out   
  
-"""        
-def  indentStr(depth):
-    out = ""
-    for i in range (0,depth):
-        out += utils.TAB
-    return out
-"""
 
 def builHTMLTags(tag, propsMap):
+    """
+    builds html tags given tag name and property-value map 
+    """
+    
     #openning tag
     openTag = "<" + tag 
     for prop in propsMap:
@@ -169,41 +172,15 @@ def builHTMLTags(tag, propsMap):
     openTag = openTag.translate(None, "\t")
     closeTag = closeTag.translate(None, "\t")
     
-    #openTag = re.sub("\\r|\\n", "", openTag)
-    #closeTag = re.sub("\\r|\\n", "", closeTag)
     return openTag, closeTag
 
-#baseTagBuf is an html represtaton of a tag <tag atr=val atr2=val2>
-#this function injects a key and optional value into the tag
-#def addArgVal(baseTagBuf, key, val):
-    
 
-#block is assumed to be either in the form key=val, tag <no val> or tag:<newline tab>tagContent        
-def extractBlockTypeOld(block):
-    #block is atr=val block
-    splited = block.split("=")
-    if len(splited) == 2:
-        return BLOCK_TYPE_PROP_VAL
-    # block is atr with no val
-    if block.find(":") == -1 and block.find("=") == -1:
-        return BLOCK_TYPE_PROP_VAL
-    
-    
-    pos = block.find(":")
-    if pos > 0:
-        tagName = block.split(":")[0]
-        tagName = tagName.translate(None, "\t")
-        tagName = tagName.translate(None, "\n")
-        if tagName == "leaf":
-            return BLOCK_TYPE_LEAF
-        if tagName == "#":
-            return BLOCK_TYPE_COMMENT
-        return BLOCK_TYPE_TAG_CONTENT
-    else:
-        return BLOCK_TYPE_PROP_VAL
-    
+
 
 def extractBlockType(block):
+    """
+    classifies given block
+    """
     if not isBlockContainingInnerIndent(block):
         return BLOCK_TYPE_PROP_VAL
     #a block with indentation 
@@ -222,7 +199,10 @@ def extractBlockType(block):
     raise Exception("could not intrepret block:" + block)
 
     
-def  extractArgVal(block):
+def  extractPropVal(block):
+    """
+    parses property name and (optional) value
+    """
     tokens = block.split("=")
     key = tokens[0]
     if len(tokens) > 1:
@@ -231,15 +211,23 @@ def  extractArgVal(block):
         val = None
     return key, val
 
-#the tag is supposed to be the first line, the content the rest of the block
+
 def extractTagContent(block):
-    #colPos = block.find(":")
+    """
+    extracts the content type from a block containing tag and content like so:
+    tag:
+        content (n lines)
+    """
     colPos = block.find(":\n")
     return block[0:colPos], block[colPos + 1:]
 
 
-#return true iff the 2nd line opens with one tab more than the first and the firs line contains a colon
+
 def isBlockContainingInnerIndent(block):
+    """
+        return true iff the 2nd line opens with one tab more than the first and the first line contains a colon, 
+        which would indicate a tag-content block 
+    """
     if not block:
         return False
     lines = block.split('\n')
@@ -253,13 +241,15 @@ def isBlockContainingInnerIndent(block):
             return False
         i = i + 1
     #search for indentation: 2nd line has 1 tab more than 1st
-    if countTagbsAtPrefix(lines[i]) + 1 == countTagbsAtPrefix(lines[i+1]):
+    if countLeadingTags(lines[i]) + 1 == countLeadingTags(lines[i+1]):
         return True
     return False
         
 
-def countTagbsAtPrefix(line):
-    pos = 0
+def countLeadingTags(line):
+    """
+    returns the number of tabs at the prefix of given line 
+    """
     tCounter = 0
     #find the first 
     pos = line.find("\t")
@@ -271,6 +261,4 @@ def countTagbsAtPrefix(line):
     return tCounter
 
         
-    
-#testReadBlock()
     
