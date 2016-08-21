@@ -1,0 +1,21 @@
+<xml>
+    <startminimized value="False">
+  <width value="1024">
+  <height value = "768">
+  <dummy />
+  <plugin>
+    <name value="Show Warning Message Box">
+    <dllfile value="foo.dll">
+    <method value = "warning">
+  </plugin>
+  <plugin>
+    <name value="Show Error Message Box">
+    <dllfile value="foo.dll">
+    <method value = "error">
+  </plugin>
+  <plugin>
+    <name value="Get Random Number">
+    <dllfile value="bar.dll">
+        <method value = "random">
+  </plugin>
+</xml>

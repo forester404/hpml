@@ -1,0 +1,62 @@
+<soap11:Envelope xmlns="urn:GoogleSearch" xmlns:google="urn:GoogleSearch" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap11:Body>
+    <doGoogleSearchResponse>
+      <return>
+        <documentFiltering>false</documentFiltering>
+        <estimatedTotalResultsCount>3</estimatedTotalResultsCount>
+        <directoryCategories soapenc:arrayType="google:DirectoryCategory[0]"></directoryCategories>
+        <searchTime>0.194871</searchTime>
+        <resultElements soapenc:arrayType="google:ResultElement[3]">
+          <item>
+            <cachedSize>12k</cachedSize>
+            <hostName></hostName>
+            <snippet> <b>...</b> on a simple dialog (via <b>teletype</b>) with a user, about a <b>...</b> http://hci.stanford.edu/<b>winograd</b>/<b>shrdlu</b><br> . It is written in <b>MacLisp</b>, vintage 1970, and to <b>...</b></snippet>
+            <directoryCategory>
+              <specialEncoding></specialEncoding>
+              <fullViewableName></fullViewableName>
+            </directoryCategory>
+            <relatedInformationPresent>true</relatedInformationPresent>
+            <directoryTitle></directoryTitle>
+            <summary></summary>
+            <URL>http://hci.stanford.edu/cs147/examples/shrdlu/</URL>
+            <title><b>SHRDLU</b></title>
+          </item>
+          <item>
+            <cachedSize>12k</cachedSize>
+            <hostName></hostName>
+            <snippet> <b>...</b> on a simple dialog (via <b>teletype</b>) with a user, about a <b>...</b> http://hci.stanford.edu/<b>winograd</b>/<b>shrdlu</b>/code<br> . It is written in <b>MacLisp</b>, vintage 1970, and to <b>...</b></snippet>
+            <directoryCategory>
+              <specialEncoding></specialEncoding>
+              <fullViewableName></fullViewableName>
+            </directoryCategory>
+            <relatedInformationPresent>true</relatedInformationPresent>
+            <directoryTitle></directoryTitle>
+            <summary></summary>
+            <URL>http://hci.stanford.edu/winograd/shrdlu</URL>
+            <title><b>SHRDLU</b></title>
+          </item>
+          <item>
+            <cachedSize>32k</cachedSize>
+            <hostName></hostName>
+            <snippet> <b>...</b> man and woman through <b>teletype</b> and has to <b>...</b> human diseases) 1970* Terry <b>Winograd&apos;s</b> <b>SHRDLU</b><br> (Natural Language Processing <b>...</b> Lisp Machine Lisp, <b>MacLisp</b>, NIL, S-1 <b>...</b></snippet>
+            <directoryCategory>
+              <specialEncoding></specialEncoding>
+              <fullViewableName></fullViewableName>
+            </directoryCategory>
+            <relatedInformationPresent>true</relatedInformationPresent>
+            <directoryTitle></directoryTitle>
+            <summary></summary>
+            <URL>http://www.trentu.ca/csd/newsarchives/trentu/csp/cr350/79</URL>
+            <title></title>
+          </item>
+        </resultElements>
+        <endIndex>3</endIndex>
+        <searchTips></searchTips>
+        <searchComments></searchComments>
+        <startIndex>1</startIndex>
+        <estimateIsExact>true</estimateIsExact>
+        <searchQuery>shrdlu winograd maclisp teletype</searchQuery>
+      </return>
+    </doGoogleSearchResponse>
+  </soap11:Body>
+</soap11:Envelope>

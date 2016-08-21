@@ -1,0 +1,12 @@
+GET http://del.icio.us/api/peej/?start=1&end=2
+<?xml version="1.0"?>
+<user email="paul@peej.co.uk" name="Paul James" href="http://www.peej.co.uk/">
+    <bookmarks href="http://del.icio.us/api/peej/bookmarks/" start="1" end="2" next="http://del.icio.us/api/peej/?start=3&amp;end=4">
+        <bookmark url="http://www.example.org/one" href="http://del.icio.us/api/peej/bookmarks/a211528fb5108cddaa4b0d3aeccdbdcf"/>
+        <bookmark url="http://www.example.org/two" href="http://del.icio.us/api/peej/bookmarks/e47d06a59309774edab56813438bd3ce"/>
+    </bookmarks>
+    <tags href="http://del.icio.us/api/peej/tags/">
+        <tag name="example" count="2" href="http://del.icio.us/api/peej/tags/example"/>
+        tag name="test" count="2" href="http://del.icio.us/api/peej/tags/test"/>
+    </tags>
+</user>
