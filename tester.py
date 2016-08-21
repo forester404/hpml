@@ -1,6 +1,7 @@
 import goBack
 import phtml
 import utils
+import unittest
 
 
 
@@ -12,8 +13,25 @@ TEST_INPUT_FILE_SOAP = "test_input/soap2.xml"
 TEST_INPUT_FILE_HTML = "test_input/ml5smpl_org.html"
 
 
+                 
 
+class FromHtmlTester(unittest.TestCase):
+    def testtest(self):
+        assert True
+        
+    def testTranslHTML(self):
+        src = utils.readBuffer("test_input/html_src_1.html")
+        expected = utils.readBuffer("test_input/expct_trx_1.pig")
+        trx = phtml.translateRawHtml(src)
+        self.assertEqual(trx.strip(), expected.strip() )
+       
+        
 
+        
+        
+class ToHtmlTester(unittest.TestCase):
+    def testtest(self):
+        assert True
 
 """
 
@@ -139,7 +157,10 @@ def testReadBlock():
     buf = "\n\ttag1: \n \t\ttag1content  \n \t\ttag2: \n \t\t\ttag2content \n \ttag1sibling"  
     print goBack.blockEnd(1 , buf, 12)
 
-testBackAndForth()
+#testBackAndForth()
 #translateXml()
 #testSplitHeader()
 #testSplitHeadSoap()
+
+
+unittest.main()
