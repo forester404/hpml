@@ -23,8 +23,10 @@ in the tester module you can either run the tests, or the demos by uncommenting 
 usage:
 created with python 2.7
 to run the tester in windows command line just unpack project, change your location to the testing folder and enter:
-python tester.py 
+python tester.py
 on others platforms i imagine it is something very similar 
+otherwise, just use the api as normal python modules 
+
 
 
 
