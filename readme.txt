@@ -3,7 +3,7 @@ page19	overview
 Page19 is an alternative representation of html, its style inspired by Python indentation sensitive and clean syntax.
 you can view the .pig files in /testing/test_input to see exactly how it looks like. 
 you can also uncomment and run /testing/tester.demoConsoleBackAndForthHTML() for an instance of the translated syntax of a test file
-to be print to console. 
+to be printed to console. 
 the functionality is translating in both directions html->page19 and the other way around.
 in general the project is only a demo and not an actual product. it has no pretence to fully support the HTML specification, 
 but enough of the basic stuff to be a useful demo, i hope. 
@@ -32,10 +32,8 @@ otherwise, just use the api as normal python modules
 
 status:
 22.08.2016 
-the basic functionality of translating between html and page19 is implemented and testing. 
+the basic functionality of translating between html and page19 is implemented and superficially tested. 
 the functionality includes almost no error handling.
+the testing comprised mostly of high level functionality, testing of low lever helping function is missing.  
 translating of general xml funtions only with basic stuff like xml_simple_1 but fails on more complex 
 stuff like soap1.xml and soap2.xml
-
-
-ttt
