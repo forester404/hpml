@@ -36,3 +36,6 @@ the basic functionality of translating between html and page19 is implemented an
 the functionality includes almost no error handling.
 translating of general xml funtions only with basic stuff like xml_simple_1 but fails on more complex 
 stuff like soap1.xml and soap2.xml
+
+
+ttt
