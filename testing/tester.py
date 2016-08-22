@@ -1,3 +1,6 @@
+import sys
+sys.path.insert(0, "../src/")
+
 import goBack
 import phtml
 import utils
