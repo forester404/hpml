@@ -1,8 +1,8 @@
 """
-an translator from html to cleanView  (python styled synthex)
+an translator from html to page19  (python styled synthex)
 """
-#TODO - add reference to cleanView reference 
 
+#TODO - implement error handling 
 
 import re
 import utils
@@ -22,7 +22,7 @@ CLOSING_TAG_NORMAL = 2
 
 def translateRawHtml(rawHtml):
 	"""
-	translates a buffer of raw html to cleanView synthax
+	translates a buffer of raw html to page14 synthax
 	"""
 	outBuf = {}
 	outBuf["txt"] = ""
@@ -38,7 +38,7 @@ def translateRawHtml(rawHtml):
 
 def translateXML(rawXml):
 	"""
-	translates xml to cleanVeiw
+	translates xml to page19
 	this is only partial implementation, that is, it would fail on some xml 
 	"""
 	#TODO - complete/fix implementation 
@@ -73,7 +73,7 @@ def handlePreRoot(buf, outBuf):
 
 def processContent(content, indentInTabs, outBuf):
 	"""
-	interprets given raw html sub tree into cleanView subtree
+	interprets given raw html sub tree into page19 subtree
 	an html sub tree for that matter is html contined between 2 matching tags
 	content - raw html
 	indentInTabs - the 
@@ -129,7 +129,7 @@ def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	indendtInTabs - base indentation depth of subtree
 	outBuf -output buffer
 	
-	how:baiscaly the closing comment tag is searched, and the content is added to output buffer interpreted to cleanView
+	how:baiscaly the closing comment tag is searched, and the content is added to output buffer interpreted to page19
 	"""
 	ind = utils.bldInd(indentInTabs)
 	pos = startOfOPenTagPos
@@ -417,7 +417,7 @@ def getTagContent(buf, index):
 
 def outputArgsMap(indentDepth, args, outBuf):
 	"""
-	translates properties map to cleanView and appends to output
+	translates properties map to page19 and appends to output
 	indentDepth -- indendt depth
 	args -- a map of properties and vaues
 	outBuf -- buffer to append output to

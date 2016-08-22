@@ -3,13 +3,21 @@ import phtml
 import utils
 import unittest
 
+"""
+testing module for translations on both directions 
+"""
+#TODO - testing of low level functionality of helping funtions is not implemnted
+#TODO - testing error handling is not implemented 
+
 
 """
-test input files are html or xml file to be translated. the expect files are epected resuts after translation. 
-test input file whose name ends with TAB_INDENT have tab indentation, and those ending with WS_INDENT (whitesape 
-indentation) have a less strict structure. those with tab indent are needed in order to test reverse translation, 
+test input files are html or xml file to be translated. the expect files are expected results after translation. 
+test input file whose name ends with TAB_INDENT have tab indentation, and those ending with WS_INDENT (whitespace 
+indentation) have a less strict structure. those with tab indentation are needed in order to test reverse translation, 
 because reverse translations adds proper tab based indentation according to the html hirarchy, and when comparing 
-output with expectation the tabs are also considered. this is not necesserely a good thing, rather a constraint.    
+output with expectation indentation is also considered, even for html where it is not really a part of the syntax. 
+this is a constraint, a comparison of html content without considering the indentation could have possibly be more 
+suitable     
 
 """
 
@@ -32,7 +40,7 @@ TEST_EXPECT_FILE_HTML_FULL_OUT = "test_input/expected_out_from_html_full.pig"
 
 def compareStringWithFileContent(fileIn, fileExpected, processFunction):  
     """
-    reads content of input, processes it with given funtion, then compares it with content 
+    reads content of input, processes it with given function, then compares it with content 
     read from expected result file 
     """
     inContent = utils.readBuffer(fileIn) 
@@ -43,10 +51,10 @@ def compareStringWithFileContent(fileIn, fileExpected, processFunction):
 
 
 class FromHtmlTester(unittest.TestCase):
-    def testtest(self):
-        assert True
-    
-    
+    """
+    contains tests for translation from html to page19
+    all tests consist of reading an input html file, processing it and comparing with expected result 
+    """ 
     def testTranslHTMLCompactTagInd(self):
         fileIn = TEST_INPUT_FILE_HTML_CMP_TAB_INDENT
         f = phtml.translateRawHtml
@@ -70,12 +78,11 @@ class FromHtmlTester(unittest.TestCase):
         
 class ToHtmlTester(unittest.TestCase):
     
-    
-    #the comparison is with an expected html formatted as expected by the first direction. (such formatting is 
-    #not expected on the first direction, but of course must be assumed for testing against output
-    #the translation is revirsable up to change in formatting to the html file, as well as some optional closing 
-    #tags that would be added 
-     
+    """
+    contains tests of translation from  page19 to html (tran)
+    all tests consist of reading a page19 file, 
+    , processing it and comparing with expected result 
+    """ 
         
     def testTransBackCmp(self):
         fileIn = TEST_EXPECT_FILE_HTML_CMP_OUT
@@ -92,6 +99,9 @@ class ToHtmlTester(unittest.TestCase):
 
 
 def demoConsoleBackAndForthHTML():
+    """
+    this is a demo that prints on console out put of translation in both directions 
+    """
     print "-----------translated:-------------------"
     buf = utils.readBuffer(TEST_INPUT_FILE_HTML_FULL_WS_INDENT)
     trx = phtml.translateRawHtml(buf)
@@ -102,6 +112,9 @@ def demoConsoleBackAndForthHTML():
     print out.expandtabs(5)
     
 def demoConsoleBackAndForthXML():
+    """
+    this is a demo that prints on console out put of translation in both directions 
+    """
     print "-----------translated from xml:-------------------"
     buf = utils.readBuffer(TEST_INPUT_FILE_XML_SIMPLE)
     parsed = phtml.translateXML(buf)
@@ -115,7 +128,7 @@ def demoConsoleBackAndForthXML():
 
 #demoConsoleBackAndForthXML()
 
-#demoConsoleBackAndForthHTML()
+demoConsoleBackAndForthHTML()
 
-unittest.main()
+#unittest.main()
 

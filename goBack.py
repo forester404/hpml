@@ -2,8 +2,10 @@ import re
 import utils
 
 """
-an translator for cleanView to html
+an translator for page19 to html
 """
+
+#TODO - implement error handling 
 
 #property-value pair
 BLOCK_TYPE_PROP_VAL = 1
@@ -37,7 +39,7 @@ def blockEnd(indentDepthTabs, buf, tagStartPos):
 
 def translageBacktoHtml(buf):
     """
-    translates cleanView back to html
+    translates page19 back to html
     
     """
     return processBuf(buf, 0)[0]
@@ -45,7 +47,7 @@ def translageBacktoHtml(buf):
 
 def processBuf(buf, baseIndDepth):
     """ 
-    translates a subtree of cleanView to html
+    translates a subtree of page19 to html
     
     buf is a complete subtree of a parsed structure, the block from "content start" until "content end", 
     including the indentation before content start - this is critical, because a block is also seen 
@@ -61,7 +63,7 @@ def processBuf(buf, baseIndDepth):
         (...content end)
         
     the return values are the reverse tranlslated sub tree, as well as a properties to values map. this is because 
-    in html the properties are at the header, and in cleanVeiw the properties are siblings of the nested content, 
+    in html the properties are at the header, and in page19 the properties are siblings of the nested content, 
     so they should be returned for the calling level to be able to include them in its header 
     """    
     
