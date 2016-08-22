@@ -89,10 +89,9 @@ class ToHtmlTester(unittest.TestCase):
         fileExpected = TEST_INPUT_FILE_HTML_FULL_TAB_INDENT
         self.assertTrue(compareStringWithFileContent(fileIn, fileExpected, f))
         
-    
 
 
-def testBackAndForth():
+def demoConsoleBackAndForthHTML():
     print "-----------translated:-------------------"
     buf = utils.readBuffer(TEST_INPUT_FILE_HTML_FULL_WS_INDENT)
     trx = phtml.translateRawHtml(buf)
@@ -102,82 +101,21 @@ def testBackAndForth():
     out = unTraxed
     print out.expandtabs(5)
     
-def translateXml():
-    #ok
+def demoConsoleBackAndForthXML():
+    print "-----------translated from xml:-------------------"
     buf = utils.readBuffer(TEST_INPUT_FILE_XML_SIMPLE)
-    
-    #not ok
-    #buf = utils.readBuffer(TEST_INPUT_FILE_SOAP)
     parsed = phtml.translateXML(buf)
     print parsed
-    print "-----------and back to:-------------------"
+    print "-----------and back to xml:-------------------"
     unParsed = goBack.processBuf(parsed, 0)
     out = unParsed[0]
     print out.expandtabs(5)
-    
-def testCountTabs():
-    line = "\n\n\t\t\tand that is it"
-    print goBack.countLeadingTags(line)   
-    
-def testRecongnizeIdentBlock():
-    block = "\ttag:\n\t\tcont"
-    print goBack.isBlockContainingInnerIndent(block)
-    block = "\ttag:\n\t\tc=ont"
-    print goBack.isBlockContainingInnerIndent(block)
-    block = "prop=34"
-    print goBack.isBlockContainingInnerIndent(block)
-    block = "simpleContentLine1\nsimpleContentLine2\nsimpleContentLine3"
-    print goBack.isBlockContainingInnerIndent(block)
-    block = "\ttag:\ntcont"
-    print goBack.isBlockContainingInnerIndent(block)
-    
-def testSplitHeader():
-    #buf = '<user email="paul@peej.co.uk" name="Paul James" href="http://www.peej.co.uk/">'
-    buf = '<user email="paul@peej.co.uk" noQProp=noQVal  noValFalg name= "Paul James" href="http://www.peej.co.uk/" >'
-    args = phtml.readTagHeader(buf, 0)
-    print args
-    
-    
-def  testSplitHeadSoap():
-    buf = """<soap11:Envelope  
-  xmlns="urn:GoogleSearch" 
-  xmlns:google="urn:GoogleSearch"
-  xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
-  xmlns:soap11="http://schemas.xmlsoap.org/soap/envelope/">"""
-    args = phtml.readTagHeader(buf, 0)
-    print args
+ 
+ 
 
+#demoConsoleBackAndForthXML()
 
-def serExpectedFull():
-    
-    
-    inContent = utils.readBuffer(TEST_INPUT_FILE_HTML_FULL_WS_INDENT)
-    trx = phtml.translateRawHtml(inContent)
-    text_file = open("temp_ser.txt", "w")
-    text_file.write(trx)
-    text_file.close()   
+#demoConsoleBackAndForthHTML()
 
-def serBackHTMLFull():
-    inContent = utils.readBuffer(TEST_EXPECT_FILE_HTML_FULL_OUT)
-    reTrx = goBack.translageBacktoHtml(inContent)
-    text_file = open("temp_ser.txt", "w")
-    text_file.write(reTrx)
-    text_file.close()  
-    
-    
-def testReadBlock():
-    buf = "\n\ttag1: \n \t\ttag1content  \n \t\ttag2: \n \t\t\ttag2content \n \ttag1sibling"  
-    print goBack.blockEnd(1 , buf, 12)
+unittest.main()
 
-testBackAndForth()
-#translateXml()
-#testSplitHeader()
-#testSplitHeadSoap()
-
-
-#unittest.main()
-
-#serExpectedFull()
-
-
-#serBackHTMLFull()
