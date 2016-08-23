@@ -22,7 +22,7 @@ CLOSING_TAG_NORMAL = 2
 
 def translateRawHtml(rawHtml):
 	"""
-	translates a buffer of raw html to page14 synthax
+	translates a buffer of raw html to page19 syntax
 	"""
 	outBuf = {}
 	outBuf["txt"] = ""
@@ -39,7 +39,7 @@ def translateRawHtml(rawHtml):
 def translateXML(rawXml):
 	"""
 	translates xml to page19
-	this is only partial implementation, that is, it would fail on some xml 
+	this is only a partial implementation, that is, it would fail on some xml 
 	"""
 	#TODO - complete/fix implementation 
 	
@@ -73,11 +73,11 @@ def handlePreRoot(buf, outBuf):
 
 def processContent(content, indentInTabs, outBuf):
 	"""
-	interprets given raw html sub tree into page19 subtree
+	translates given raw html sub tree into page19 subtree
 	an html sub tree for that matter is html contined between 2 matching tags
 	content - raw html
 	indentInTabs - the 
-	outBuf - a buffer on which to wirte the interpreted output
+	outBuf - a buffer on which to write the interpreted output
 	
 	the function itterates over subblocks of the current level- siblings in the html sub tree 
 	each sibling is either a nested tag and its optional a comment, or a primitive content, that is, a simple string
@@ -87,7 +87,7 @@ def processContent(content, indentInTabs, outBuf):
 	i = 0
 	while i < len(content):
 		strContent = {}
-		#read content in between tag elements and processes it (between ending of one tag and begining of it sibling)
+		#read content in between tag elements and processes it (between ending of one tag and begining of its sibling)
 		nextTagPos = nextStargTag(content, i, strContent)
 		if strContent["txt"]:
 			processSimpleContent (indentInTabs, strContent["txt"], outBuf)
@@ -124,7 +124,7 @@ def processContent(content, indentInTabs, outBuf):
 
 def handleComment(buf, indentInTabs, startOfOPenTagPos, outBuf):
 	"""
-	parses and outputs a comment, returns the complet size of the block including tags
+	translates a comment and appends to output buffer, returns the complete size of the block including tags
 	buf - raw html
 	indendtInTabs - base indentation depth of subtree
 	outBuf -output buffer
@@ -166,7 +166,7 @@ def itsAComment(buf, nextTagPos):
 
 def processSimpleContent (indentDepth, rawSimpleContent, outBuf):
 	"""
-	interpret and output raw html that is leaf, that is not containing tag elements
+	translates and outputs raw html that is leaf, that is not containing tag elements
 	indentDepth -- depth of subtree indentation
 	rawSimpleContent -- the raw html input 
 	outBuf -- buffer to write output on 
@@ -191,7 +191,7 @@ def processSimpleContent (indentDepth, rawSimpleContent, outBuf):
 	
 	
 def nextStargTag(buffer, index, strContent):
-	"""finds position in given contnet of beginning of next tag"""
+	"""finds position in given content of beginning of next tag"""
 	contBuf = ""
 	while index < len(buffer):
 		if buffer[index] == '<':
@@ -268,40 +268,6 @@ def readTag(buffer, startingIndex):
 		i = i + 1
 	return tag
 
-
-
-
-
-
-def readTagHeaderOld (buffer, startingIndex):
-	"""
-	parses attributes of given raw html
-	buffer -- raw html
-	startingIndex -- pointer to beginning of tag
-	
-	returns a map of attributes and values, and the total length of the raw html tag
-	"""
-	atrbs  = {}
-	totLen = 0
-	i = startingIndex + 1 
-	fieldsStr = ""
-	while buffer[i] != ">":
-		fieldsStr += buffer[i]
-		i = i + 1 
-		totLen = totLen + 1
-	fieldsStrss = fieldsStr.split(" ")
-	#drop the tag itself
-	fieldsStrss.pop(0)
-	for field in fieldsStrss:
-		keyVal = field.split("=")
-		key = keyVal[0]
-		#value is optional in html
-		if len(keyVal) > 1 :
-			val = keyVal[1]
-		else:
-			val = None 
-		atrbs[key] = val
-	return atrbs, totLen + 1
 
 
 def readTagHeader(buf, pos):

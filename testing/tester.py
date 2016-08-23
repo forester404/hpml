@@ -128,10 +128,12 @@ def demoConsoleBackAndForthXML():
     print out.expandtabs(5)
  
  
-
-#demoConsoleBackAndForthXML()
-
+#uncomment to run demo of html translate
 demoConsoleBackAndForthHTML()
 
+#uncomment to run demo of xml translate
+#demoConsoleBackAndForthXML()
+
+#uncomment to run the tests
 #unittest.main()
 

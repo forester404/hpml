@@ -21,7 +21,7 @@ BLOCK_TYPE_DOCTYPE = 5
 
 def blockEnd(indentDepthTabs, buf, tagStartPos):
     """"
-    given depth of indentitation, function searches for next tag with similar indentitation, that is, sibling tag
+    given depth of indentation, function searches for next tag with similar indentation, that is, sibling tag
     returns length of block for starting start pos or -1 if not found
     """
     #a regexp for sequence of tabs in proper depth, followed alphnumeric char
@@ -51,7 +51,7 @@ def processBuf(buf, baseIndDepth):
     
     buf is a complete subtree of a parsed structure, the block from "content start" until "content end", 
     including the indentation before content start - this is critical, because a block is also seen 
-    as the content between 2 equaly long indentitation blocks 
+    as the content between 2 equaly long indentation blocks 
      tag:
         (content start....)
          propp1 = val1
@@ -62,7 +62,7 @@ def processBuf(buf, baseIndDepth):
 
         (...content end)
         
-    the return values are the reverse tranlslated sub tree, as well as a properties to values map. this is because 
+    the return values are the reverse translated sub tree, as well as a properties to values map. this is because 
     in html the properties are at the header, and in page19 the properties are siblings of the nested content, 
     so they should be returned for the calling level to be able to include them in its header 
     """    
