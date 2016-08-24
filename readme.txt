@@ -20,6 +20,8 @@ tag1:
 	nestedTag:
 		prop11 = val11
 		prop12 = val12
+		leaf:
+			plain string
 
 to see more extensive examples:
 you can view the .pig files in /testing/test_input. you can also uncomment and run /testing/tester.demoConsoleBackAndForthHTML() 
